@@ -169,8 +169,8 @@
 			"composition" : [
 				{ "material" : "skvarobeton@1000", "width" : 0.1 },
 				{ "material" : "drevo@tvrde(K)", "width" : 0.05 },
-				{ "material" : "vzduch", "width" : 0.25 },
-				{ "material" : "hlinik", "width" : 0.001 }
+				{ "material" : "vzduch", "width" : 0.00001 },
+				{ "material" : "drevotrieska", "width" : 0.00001 }
 			]
 		}
 	],
