@@ -54,16 +54,25 @@ class FlowProvider: public Line {
 
 class Pipe: public FlowConductor {
 public:
-	Pipe(double diameter, double wall, double length): m_diameter(diameter), m_wall(wall), m_length(length) {}
+	Pipe(double diameter, double wall, double length): m_diameter(diameter), m_wall(wall), m_length(length) {
+		double volume = M_PI * pow(diameter / 2.0, 2) * length;
+		Pipe::s_totalVolume += volume;
+	}
 	double flowSpeed(double flow) const;
 	double tempLoss(double outTemp) const;
 	double pressureLoss() const;
+
+	static double totalVolume() { return Pipe::s_totalVolume; }
 
 protected:
 	double m_diameter;
 	double m_wall;
 	double m_length;
+
+	static double s_totalVolume;
 };
+
+double Pipe::s_totalVolume = 0;
 
 class Node {
 public:
@@ -444,6 +453,8 @@ int main(int argc, char ** argv) {
 
 	inputFlow = forwardFlow(systemInput);
 	outputFlow = reverseFlow(systemOutput);
+
+	printf("Total piping volume is %.3f m3\n", Pipe::totalVolume());
 
 	return 0;
 }
