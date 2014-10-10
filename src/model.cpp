@@ -7,6 +7,11 @@ double Point::distance(const Point * other) const {
 	return sqrt(pow2(this->x() - other->x()) + pow2(this->y() - other->y())); 
 }
 
+bool Material::validate() {
+	if (m_conductivity != 0) return true;
+	return false;
+}
+
 /** Validates material library.
  * For now validation basically consists of creating name:material pair and ensuring that each material name is unique
  */
@@ -48,6 +53,17 @@ void Window::compute() {
 	m_resistance = 1.0/(surface() * conductivity());
 }
 
+void WallType::compute(MaterialLibrary * library) {
+	double resistance = 0;
+	for (MaterialUsageVector::const_iterator it = m_composition.begin(); it != m_composition.end(); ++it) {
+		std::string materialName = (*it)->material();
+		const Material * material = library->material(materialName);
+		if (material != NULL) {
+			resistance += (*it)->width() / material->conductivity();
+		}
+	}
+}
+
 void Wall::compute(Room * room, const Point * start_vertex, const Point * end_vertex) {
 	m_room = room;
 	m_start_vertex = start_vertex;
@@ -63,6 +79,10 @@ void Wall::compute(Room * room, const Point * start_vertex, const Point * end_ve
 		surface -= (*it)->surface();
 	}
 
+	for (MaterialUsageVector::const_iterator it = m_materials.begin(); it != m_materials.end(); ++it) {
+		
+	}
+
 	printf("Wall surface is: %.5f m^2\n", surface);
 }
 
@@ -74,11 +94,39 @@ void Room::compute(Building * building) {
 	for (WallVector::iterator it = m_walls.begin(); it != m_walls.end(); ++it) {
 		const Point * point1 = building->point((*pit1)->getValue());
 		const Point * point2 = building->point((*pit2)->getValue());
-		printf("point 1 = %p\tpoint 2 = %p\n", point1, point2);
 		(*it)->compute(this, point1, point2);
 		++pit1; ++pit2;
 		if (pit2 == m_points.end()) pit2 = m_points.begin();
 	}
+
+	size_t points_count = m_points.size();
+	m_area = 0;
+	for (size_t q = 0; q <= points_count; ++q) {
+//		printf("q is %d\n", q);
+		const Point * this_point;
+		const Point * next_point;
+		const Point * prev_point;
+		if (q == 0) prev_point = building->point((*(m_points.rbegin()))->getValue());
+		else prev_point = building->point(m_points[q-1]->getValue());
+		next_point = building->point(m_points[(q+1)%points_count]->getValue());
+		this_point = building->point(m_points[(q)%points_count]->getValue());
+//		printf("Points are prev [%f, %f], cur [%f, %f], next [%f, %f]\n", prev_point->x(), prev_point->y(), this_point->x(), this_point->y(), next_point->x(), next_point->y());
+		m_area += this_point->x() * (next_point->y() - prev_point->y());
+//		printf("area is %f\n", m_area);
+	}	
+	m_area = fabs(m_area / 2);
+	printf("Room area is %f m^2\n", m_area);
+/*x[N] = x[0];
+x[N+1] = x[1];
+y[N] = y[0];
+y[N+1] = y[1];
+
+// compute area
+area = 0;
+for( size_t i = 1; i <= N; ++i )
+  area += x[i]*( y[i+1] - y[i-1] );
+area /= 2;*/
+	return;
 }
 
 Losses * Building::compute(MaterialLibrary * lib) {

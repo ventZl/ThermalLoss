@@ -10,21 +10,22 @@
 /** Definition of material from which wall is composed */
 class Material: public JSON::Struct {
 public:
-	Material(): json_name(&this->m_name), json_resistance(&this->m_resistance), json_density(&this->m_density) { addProperties(); }
+	Material(): json_name(&this->m_name), json_conductivity(&this->m_conductivity), json_density(&this->m_density), m_conductivity(), m_density(0) { addProperties(); }
 	std::string name() const { return m_name; }
-	float resistance() const { return m_resistance; }
+	float conductivity() const { return m_conductivity; }
 	float density() const { return m_density; }
+	bool validate();
 
 protected:
 	void addProperties() {
-		addProperty("name", &json_name); addProperty("resistance", &json_resistance); addProperty("density", &json_density);
+		addProperty("name", &json_name); addProperty("conductivity", &json_conductivity); addProperty("density", &json_density);
 	}
 
 	JSON::Simple::String json_name;
-	JSON::Simple::Float json_resistance;
+	JSON::Simple::Float json_conductivity;
 	JSON::Simple::Float json_density;
 	std::string m_name;
-	float m_resistance;
+	float m_conductivity;
 	float m_density;
 };
 
@@ -36,6 +37,8 @@ typedef std::map<std::string, Material *> NameMaterialMap;
 class MaterialUsage: public JSON::Struct {
 public:
 	MaterialUsage(): json_width(&this->m_width), json_material(&this->m_material) { addProperties(); }
+	std::string material() const { return m_material; }
+	double width() const { return m_width; }
 
 protected:
 	void addProperties() {
@@ -197,6 +200,7 @@ public:
 	void compute(Building * building);
 	Building * building() const { return m_building; }
 	float height() const { return m_height; }
+	double area() const { return m_area; }
 
 protected:
 	void addProperties() {
@@ -211,6 +215,7 @@ protected:
 
 	JSON::Simple::Float json_height;
 	float m_height;
+	double m_area;
 
 	Building * m_building;
 };
