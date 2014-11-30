@@ -79,10 +79,6 @@ void Wall::compute(Room * room, const Point * start_vertex, const Point * end_ve
 		surface -= (*it)->surface();
 	}
 
-	for (MaterialUsageVector::const_iterator it = m_materials.begin(); it != m_materials.end(); ++it) {
-		
-	}
-
 	printf("Wall surface is: %.5f m^2\n", surface);
 }
 
@@ -116,16 +112,6 @@ void Room::compute(Building * building) {
 	}	
 	m_area = fabs(m_area / 2);
 	printf("Room area is %f m^2\n", m_area);
-/*x[N] = x[0];
-x[N+1] = x[1];
-y[N] = y[0];
-y[N+1] = y[1];
-
-// compute area
-area = 0;
-for( size_t i = 1; i <= N; ++i )
-  area += x[i]*( y[i+1] - y[i-1] );
-area /= 2;*/
 	return;
 }
 

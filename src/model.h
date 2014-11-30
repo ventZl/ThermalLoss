@@ -159,9 +159,9 @@ class Wall: public JSON::Struct {
 public:
 	JSON_ARRAY_PROXY(WallWindowProxy, Wall, m_windows, Window);
 
-	Wall(): json_windows(this), json_walltype(&this->m_walltype), m_resistance(0), m_room(NULL) { addProperties(); }
+	Wall(): json_windows(this), json_walltype(&this->m_walltype), m_room(NULL) { addProperties(); }
 	void compute(Room * room, const Point * start_vertex, const Point * end_vertex);
-	double resistance() const { return m_resistance; }	
+	double losses(double deltaTemp);
 	Room * room() const { return m_room; }
 
 protected:
@@ -179,7 +179,6 @@ protected:
 	const Point * m_start_vertex;
 	const Point * m_end_vertex;
 
-	double m_resistance;
 	double m_length;
 
 	Room * m_room;
