@@ -1,83 +1,15 @@
-#ifndef __SRC_MODEL_H__
-#define __SRC_MODEL_H__
+#ifndef __SRC_MODEL_BUILDING_H__
+#define __SRC_MODEL_BUILDING_H__
 
 #include <vector>
-#include <string>
-#include "json/json.h"
+#include <json/json.h>
+#include "material.h"
 
-/** @file Data model used for describing computation model. */
-
-/** Definition of material from which wall is composed */
-class Material: public JSON::Struct {
-public:
-	Material(): json_name(&this->m_name), json_conductivity(&this->m_conductivity), json_density(&this->m_density), m_conductivity(), m_density(0) { addProperties(); }
-	std::string name() const { return m_name; }
-	float conductivity() const { return m_conductivity; }
-	float density() const { return m_density; }
-	bool validate();
-
-protected:
-	void addProperties() {
-		addProperty("name", &json_name); addProperty("conductivity", &json_conductivity); addProperty("density", &json_density);
-	}
-
-	JSON::Simple::String json_name;
-	JSON::Simple::Float json_conductivity;
-	JSON::Simple::Float json_density;
-	std::string m_name;
-	float m_conductivity;
-	float m_density;
-};
-
-/** Ordered list of materials */
-typedef std::vector<Material *> MaterialVector; 
-typedef std::map<std::string, Material *> NameMaterialMap;
-
-/** Usage of defined material. References material by it's name and defines width of layer of given material */
-class MaterialUsage: public JSON::Struct {
-public:
-	MaterialUsage(): json_width(&this->m_width), json_material(&this->m_material) { addProperties(); }
-	std::string material() const { return m_material; }
-	double width() const { return m_width; }
-
-protected:
-	void addProperties() {
-		addProperty("material", &json_material); 
-		addProperty("width", &json_width);
-	}
-
-	JSON::Simple::Float json_width;
-	JSON::Simple::String json_material;
-	std::string m_material;
-	float m_width;
-};
-
-/** Ordered list of material usages */
-typedef std::vector<MaterialUsage *> MaterialUsageVector;
-
-/** Top-level object covering whole material library. Contains list of available material definitions */
-class MaterialLibrary: public JSON::Struct {
-public:
-	JSON_ARRAY_PROXY(MaterialArrayProxy, MaterialLibrary, m_materials, Material);
-
-	MaterialLibrary(): json_materials(this) { addProperties(); }
-	bool validate();
-	const Material * material(std::string & name) const;
-
-protected:
-	void addProperties() {
-		addProperty("materials", &json_materials);
-	}
-
-	MaterialArrayProxy json_materials;
-	MaterialVector m_materials;
-	NameMaterialMap m_materialByName;
-
-//	friend class MaterialLibraryProxy;
-};
+namespace Model {
 
 /** Definition of 2D vertex. Used for positioning of walls */
-class Point: public JSON::Struct {
+
+	class Point: public JSON::Struct {
 public:
 	Point(): json_x(&this->m_x), json_y(&this->m_y) { addProperties(); }
 
@@ -96,14 +28,13 @@ protected:
 	float m_y;
 };
 
-/** Ordered list of verteices */
+/** Ordered list of vertices */
 typedef std::vector<Point *> PointVector;
 
 /** Definition of window. Window is (for now) defined by it's dimensions and thermal conductivity */
 class Window: public JSON::Struct {
 public:
 	Window(): json_width(&this->m_width), json_height(&this->m_height), json_conductivity(&this->m_conductivity) { addProperties(); }
-	void compute();
 	double conductivity() const { return m_conductivity; }
 	double resistance() const { return m_resistance; }
 	double surface() const { return m_width * m_height; }
@@ -134,7 +65,6 @@ public:
 	JSON_ARRAY_PROXY(WallTypeCompositionProxy, WallType, m_composition, MaterialUsage);
 
 	WallType(): json_composition(this), json_name(&m_name) { addProperties(); }
-	void compute(MaterialLibrary * lib);
 
 	double resistance() const { return m_resistance; }
 
@@ -160,7 +90,6 @@ public:
 	JSON_ARRAY_PROXY(WallWindowProxy, Wall, m_windows, Window);
 
 	Wall(): json_windows(this), json_walltype(&this->m_walltype), m_room(NULL) { addProperties(); }
-	void compute(Room * room, const Point * start_vertex, const Point * end_vertex);
 	double losses(double deltaTemp);
 	Room * room() const { return m_room; }
 
@@ -196,10 +125,8 @@ public:
 	
 	Room(): json_walls(this), json_points(this), json_height(&this->m_height), m_building(NULL) { addProperties(); }
 	bool validate();
-	void compute(Building * building);
 	Building * building() const { return m_building; }
 	float height() const { return m_height; }
-	double area() const { return m_area; }
 
 protected:
 	void addProperties() {
@@ -214,7 +141,6 @@ protected:
 
 	JSON::Simple::Float json_height;
 	float m_height;
-	double m_area;
 
 	Building * m_building;
 };
@@ -231,11 +157,9 @@ public:
 	JSON_ARRAY_PROXY(BuildingWallTypeProxy, Building, m_walltype, WallType);
 	JSON_ARRAY_PROXY(BuildingRoomsProxy, Building, m_rooms, Room);
 
-	Building(): json_points(this), json_rooms(this), json_walltype(this), m_library(NULL) { addProperties(); }
+	Building(): json_points(this), json_rooms(this), json_walltype(this) { addProperties(); }
 	bool validate();
-	Losses * compute(MaterialLibrary * lib);
 	const Point * point(unsigned offset) const;
-	MaterialLibrary * library() const { return m_library; }
 
 protected:
 	void addProperties() {
@@ -250,12 +174,11 @@ protected:
 
 	BuildingWallTypeProxy json_walltype;
 	WallTypeVector m_walltype;
-
-	MaterialLibrary * m_library;
 };
 
-MaterialLibrary * loadMaterialLibrary(std::string fileName);
 Building * loadBuilding(std::string fileName);
+
+}
 
 #endif
 

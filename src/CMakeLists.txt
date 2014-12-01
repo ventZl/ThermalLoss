@@ -1,8 +1,9 @@
 add_subdirectory(json)
+add_subdirectory(model)
+add_subdirectory(calc)
 
-set(model_SRCS model.cpp)
-add_library(model ${model_SRCS})
+include_directories(${CMAKE_SRC_DIR})
 
-set(app_SRCS app.cpp calc.cpp)
+set(app_SRCS app.cpp)
 add_executable(tl ${app_SRCS})
-target_link_libraries(tl model json)
+target_link_libraries(tl model json calc)
