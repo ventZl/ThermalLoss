@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <json/json.h>
+#include <stdexcept>
 #include "material.h"
 
 namespace Model {
@@ -66,7 +67,12 @@ public:
 
 	WallType(): json_composition(this), json_name(&m_name) { addProperties(); }
 
-	double resistance() const { return m_resistance; }
+//	double resistance() const { return m_resistance; }
+
+	const std::string & name() const { return m_name; }
+
+	const MaterialUsage & composition(unsigned layer) const { if (layer < m_composition.size()) return m_composition[layer]; throw std::runtime_error(); }
+	unsigned compositions() const { return m_composition.size(); }
 
 protected:
 	void addProperties() {
@@ -80,7 +86,7 @@ protected:
 
 	MaterialUsageVector m_composition;
 
-	double m_resistance;
+//	double m_resistance;
 };
 
 typedef std::vector<WallType *> WallTypeVector;
@@ -90,8 +96,13 @@ public:
 	JSON_ARRAY_PROXY(WallWindowProxy, Wall, m_windows, Window);
 
 	Wall(): json_windows(this), json_walltype(&this->m_walltype), m_room(NULL) { addProperties(); }
-	double losses(double deltaTemp);
-	Room * room() const { return m_room; }
+//	double losses(double deltaTemp);
+//	Room * room() const { return m_room; }
+
+	const Window & window(unsigned offset) const { if (offset < m_windows.size()) return m_windows[offset]; throw std::runtime_error(); }
+	unsigned windows() const { return m_windows.size(); }
+
+	const std::string & wallType() const { return m_walltype; }
 
 protected:
 	void addProperties() {
@@ -125,8 +136,14 @@ public:
 	
 	Room(): json_walls(this), json_points(this), json_height(&this->m_height), m_building(NULL) { addProperties(); }
 	bool validate();
-	Building * building() const { return m_building; }
+//	Building * building() const { return m_building; }
 	float height() const { return m_height; }
+
+	unsigned point(unsigned offset) const { if (offset < m_points.size()) return m_points[offset]; throw std::runtime_error(); }
+	unsigned points() const { return m_points.size(); }
+
+	const Wall & wall(unsigned offset) const { if (offset < m_walls.size()) return m_walls[offset]; throw std::runtime_error(); }
+	unsigned walls() const { return m_walls.size(); }
 
 protected:
 	void addProperties() {
@@ -159,7 +176,15 @@ public:
 
 	Building(): json_points(this), json_rooms(this), json_walltype(this) { addProperties(); }
 	bool validate();
-	const Point * point(unsigned offset) const;
+
+	const Point & point(unsigned offset) const { if (offset < m_points.size()) return m_points[offset]; throw std::runtime_error(); }
+	unsigned points() const { return m_points.size(); }
+
+	const Room & room(unsigned offset) const { if (offset < m_rooms.size()) return m_rooms[offset]; throw std::runtime_error(); }
+	unsigned rooms() const { return m_rooms.size(); }
+
+	const Walltype & wallType(unsigned offset) const { if (offset < m_walltype.size()) return m_walltype[offset]; throw std::runtime_error(); }
+	unsigned wallTypes() const { return m_walltype.size(); }
 
 protected:
 	void addProperties() {
