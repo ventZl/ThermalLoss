@@ -21,11 +21,23 @@ bool Model::Room::validate() {
 	return true;
 }
 
-const Model::Point * Model::Building::point(unsigned offset) const {
-	if (offset < m_points.size()) return m_points[offset];
-	return NULL;
+const Model::Point & Model::Building::point(unsigned offset) const {
+	if (offset < m_points.size()) return *m_points[offset];
+	throw std::range_error("Offset out of range");
 }
 
+
+const Model::Room & Model::Building::room(unsigned offset) const { 
+	if (offset < m_rooms.size()) return *m_rooms[offset]; 
+	throw std::runtime_error("Offset out of range"); 
+}
+
+const Model::WallType & Model::Building::wallType(unsigned offset) const { 
+	if (offset < m_walltype.size()) return *m_walltype[offset]; 
+	throw std::runtime_error("Offset out of range"); 
+}
+
+	
 /** resistance K/W */
 /*bool Model::Window::validate() {
 	m_resistance = 1.0/(surface() * conductivity());

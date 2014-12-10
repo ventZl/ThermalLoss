@@ -8,8 +8,10 @@ namespace Model {
 	class Building;
 	class Room;
 	class Window;
+	class Wall;
 	class Parameters;
 	class Losses;
+	class MaterialLibrary;
 }
 
 namespace Calc {
@@ -22,13 +24,27 @@ struct Vertex3D {
 class Edge {
 public:
 	Edge(unsigned start_edge, unsigned end_edge): start_edge(start_edge), end_edge(end_edge) {}
-	bool operator=(const Edge & other) { if (this.start_edge == other.start_edge && this.end_edge == other.end_edge) return true; return false; }
+	bool operator==(const Edge & other) { if (this->start_edge == other.start_edge && this->end_edge == other.end_edge) return true; return false; }
 	Edge opposite() const { return Edge(end_edge, start_edge); }
 
 protected:
 	unsigned start_edge;
 	unsigned end_edge;
-}
+};
+
+class Window {
+public:
+	Window(double width, double height, double resistance): m_width(width), m_height(height), m_resistance(resistance) {}
+
+	double width() const { return m_width; }
+	double height() const { return m_height; }
+	double resistance() const { return m_resistance; }
+
+protected:
+	double m_width;
+	double m_height;
+	double m_resistance;
+};
 
 class Wall {
 	/** Temporary wall record.
@@ -50,6 +66,7 @@ class Room {
 };
 
 typedef std::set<Wall> Walls;
+typedef std::set<Window> Windows;
 typedef std::set<Room> Rooms;
 
 class Calculation {
@@ -57,7 +74,7 @@ class Calculation {
 		Calculation() {}
 
 		bool load(Model::Building & building);
-		Model::Losses calculate(Model::Parameters & parameters, Model::MateralLibrary & materials);
+		Model::Losses calculate(Model::Parameters & parameters, Model::MaterialLibrary & materials);
 
 	protected:
 		void collectWalls(const Model::Room & room);

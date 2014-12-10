@@ -37,8 +37,8 @@ class Window: public JSON::Struct {
 public:
 	Window(): json_width(&this->m_width), json_height(&this->m_height), json_conductivity(&this->m_conductivity) { addProperties(); }
 	double conductivity() const { return m_conductivity; }
-	double resistance() const { return m_resistance; }
-	double surface() const { return m_width * m_height; }
+	double width() const { return m_width; }
+   	double height() const { return m_height; }
 
 protected:
 	void addProperties() {
@@ -71,7 +71,7 @@ public:
 
 	const std::string & name() const { return m_name; }
 
-	const MaterialUsage & composition(unsigned layer) const { if (layer < m_composition.size()) return m_composition[layer]; throw std::runtime_error(); }
+	const MaterialUsage & composition(unsigned layer) const { if (layer < m_composition.size()) return *m_composition[layer]; throw std::runtime_error("Layer out of interval"); }
 	unsigned compositions() const { return m_composition.size(); }
 
 protected:
@@ -99,7 +99,7 @@ public:
 //	double losses(double deltaTemp);
 //	Room * room() const { return m_room; }
 
-	const Window & window(unsigned offset) const { if (offset < m_windows.size()) return m_windows[offset]; throw std::runtime_error(); }
+	const Window & window(unsigned offset) const { if (offset < m_windows.size()) return *m_windows[offset]; throw std::runtime_error("Offset out of range"); }
 	unsigned windows() const { return m_windows.size(); }
 
 	const std::string & wallType() const { return m_walltype; }
@@ -139,10 +139,10 @@ public:
 //	Building * building() const { return m_building; }
 	float height() const { return m_height; }
 
-	unsigned point(unsigned offset) const { if (offset < m_points.size()) return m_points[offset]; throw std::runtime_error(); }
+	unsigned point(unsigned offset) const { if (offset < m_points.size()) return m_points[offset]->getValue(); throw std::runtime_error("Offset out of range"); }
 	unsigned points() const { return m_points.size(); }
 
-	const Wall & wall(unsigned offset) const { if (offset < m_walls.size()) return m_walls[offset]; throw std::runtime_error(); }
+	const Wall & wall(unsigned offset) const { if (offset < m_walls.size()) return *m_walls[offset]; throw std::runtime_error("Offset out of range"); }
 	unsigned walls() const { return m_walls.size(); }
 
 protected:
@@ -177,13 +177,13 @@ public:
 	Building(): json_points(this), json_rooms(this), json_walltype(this) { addProperties(); }
 	bool validate();
 
-	const Point & point(unsigned offset) const { if (offset < m_points.size()) return m_points[offset]; throw std::runtime_error(); }
+	const Point & point(unsigned offset) const;
 	unsigned points() const { return m_points.size(); }
 
-	const Room & room(unsigned offset) const { if (offset < m_rooms.size()) return m_rooms[offset]; throw std::runtime_error(); }
+	const Room & room(unsigned offset) const;
 	unsigned rooms() const { return m_rooms.size(); }
 
-	const Walltype & wallType(unsigned offset) const { if (offset < m_walltype.size()) return m_walltype[offset]; throw std::runtime_error(); }
+	const WallType & wallType(unsigned offset) const;
 	unsigned wallTypes() const { return m_walltype.size(); }
 
 protected:
