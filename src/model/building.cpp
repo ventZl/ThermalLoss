@@ -52,7 +52,7 @@ const Model::Point & Model::Building::point(unsigned offset) const {
 	if (offset < m_points.size()) return *(m_points[offset]);
 	return NULL;
 }*/
-
+	
 /** resistance K/W */
 /*bool Model::Window::validate() {
 	m_resistance = 1.0/(surface() * conductivity());

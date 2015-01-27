@@ -11,6 +11,7 @@ namespace Model {
 	class Building;
 	class Room;
 	class Window;
+	class Wall;
 	class Parameters;
 	class Losses;
 	class MaterialLibrary;
@@ -49,7 +50,7 @@ protected:
 class Edge {
 public:
 	Edge(unsigned start_edge, unsigned end_edge): start_edge(start_edge), end_edge(end_edge) {}
-	bool operator=(const Edge & other) { if (this->start_edge == other.start_edge && this->end_edge == other.end_edge) return true; return false; }
+	bool operator==(const Edge & other) { if (this->start_edge == other.start_edge && this->end_edge == other.end_edge) return true; return false; }
 	Edge opposite() const { return Edge(end_edge, start_edge); }
 
 protected:
