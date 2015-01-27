@@ -196,9 +196,6 @@ class Calculation {
 		Geometry::Vertex3D * collectVertex(const Model::Point & point);
 		WindowDef * collectWindowDef(const Model::WindowDef & winDef);
 		WallType * collectWallType(const Model::WallType & wallType);
-		void calcWallLoss(const Calc::Wall & wall, Model::Losses & losses);
-		void calcRoomLoss(const Calc::Room & room, Model::Losses & losses);
-		void calcWindowLoss(const Calc::Window & window, Model::Losses & losses);
 		WallType * wallType(const std::string & name) const;
 
 	public:

@@ -10,6 +10,8 @@
 		{ "name" : "andezit@Ruskov", "altname" : "andezit@Ruskov", "conductivity" : 1.150, "capacity" : 802, "density" : 0 },
 
 		{ "name" : "voda", "altname" : "water", "conductivity" : 0.6, "capacity" : 4180, "density" : 998 },
+		{ "name" : "sklo", "altname" : "glass", "conductivity" : 0.76, "capacity" : 840, "density" : 2600 },
+		{ "name" : "vzduch", "altname" : "air", "conductivity" : 0.025, "capacity" : 0, "density" : 1.2 },
 
 		{ "name" : "tehlovina@800", "altname" : "", "conductivity" : 0.510, "capacity" : 920, "density" : 800 },
 		{ "name" : "tehlovina@1400", "altname" : "", "conductivity" : 0.640, "capacity" : 920, "density" : 1400 },

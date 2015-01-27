@@ -20,6 +20,9 @@ const Model::Material * Model::MaterialLibrary::material(const std::string & nam
 //	printf("Known materials: %d\n", m_materialByName.size());
 	Model::NameMaterialMap::const_iterator it = m_materialByName.find(name);
 	if (it != m_materialByName.end()) return it->second;
+	fprintf(stderr, "Material '%s' is not defined!\n", name.c_str());
+	fprintf(stderr, "Material library summary:\n=========================\nKnown materials: %d\n", m_materialByName.size());
+	exit(1);
 	return NULL;
 }
 

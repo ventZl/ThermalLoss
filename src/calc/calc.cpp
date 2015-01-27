@@ -305,13 +305,10 @@ Calc::Wall * Calc::Calculation::collectWall(const Calc::Room * room, const Model
 	for (unsigned q = 0; q < wall.windows(); ++q) {
 		Calc::Window * window = collectWindow(wall_, wall.window(q));
 		wall_->append(window);
+		m_windows.push_back(window);
 	}
 	m_walls.push_back(wall_);
 	return wall_;
-}
-
-void Calc::Calculation::calcWallLoss(const Calc::Wall & wall, Model::Losses & losses) {
-	
 }
 
 Calc::WallType * Calc::Calculation::wallType(const std::string & name) const {
@@ -362,6 +359,7 @@ Model::Losses * Calc::Calculation::calculate(Model::Parameters & parameters, Mod
 	}
 
 	for (unsigned q = 0; q < m_windows.size(); q++) {
+		printf("Calculating window %d\n", q);
 		m_windows[q]->calculate(materials, parameters, *outLosses);
 	}
 

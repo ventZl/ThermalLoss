@@ -174,9 +174,9 @@
 					"width" : 1.28,
 					"height" : 1.17,
 					"layers" : [
-						{ "material" : "glass", "depth" : 0.004 },
-						{ "material" : "air", "depth" : 0.042 },
-						{ "material" : "glass", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.004 },
+						{ "material" : "vzduch", "depth" : 0.042 },
+						{ "material" : "sklo", "depth" : 0.004 }
 					]
 				}
 			]
@@ -192,9 +192,9 @@
 					"width" : 0.99,
 					"height" : 1.17,
 					"layers" : [
-						{ "material" : "glass", "depth" : 0.004 },
-						{ "material" : "air", "depth" : 0.042 },
-						{ "material" : "glass", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.004 },
+						{ "material" : "vzduch", "depth" : 0.042 },
+						{ "material" : "sklo", "depth" : 0.004 }
 					]
 				}
 			]
@@ -210,9 +210,9 @@
 					"width" : 0.37,
 					"height" : 0.37,
 					"layers" : [
-						{ "material" : "glass", "depth" : 0.004 },
-						{ "material" : "air", "depth" : 0.042 },
-						{ "material" : "glass", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.004 },
+						{ "material" : "vzduch", "depth" : 0.042 },
+						{ "material" : "sklo", "depth" : 0.004 }
 					]
 				}
 			]
@@ -228,9 +228,9 @@
 					"width" : 1.28,
 					"height" : 1.17,
 					"layers" : [
-						{ "material" : "glass", "depth" : 0.004 },
-						{ "material" : "air", "depth" : 0.042 },
-						{ "material" : "glass", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.004 },
+						{ "material" : "vzduch", "depth" : 0.042 },
+						{ "material" : "sklo", "depth" : 0.004 }
 					]
 				}
 			]
@@ -246,7 +246,7 @@
 					"width" : 0.96,
 					"height" : 0.37,
 					"layers" : [
-						{ "material" : "glass", "depth" : 0.004 },
+						{ "material" : "sklo", "depth" : 0.004 },
 					]
 				}
 			]
@@ -268,7 +268,7 @@
 							"width" : 0.2,
 							"height" : 1.0,
 							"depth" : 0.04,
-							"material" : "glass" 
+							"material" : "sklo" 
 						}
 					]
 				} 
