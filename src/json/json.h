@@ -37,7 +37,34 @@ namespace JSON {
 	class Struct;
 	class Array;
 	class Number;
-	
+
+	class ValidStatus {
+	public:
+		ValidStatus() {}
+		virtual ~ValidStatus() {}
+
+		virtual bool isValid() const = 0;
+		virtual std::string errorMessage() const = 0;
+	};
+
+	class Valid: public ValidStatus {
+	public:
+		Valid();
+
+		virtual bool isValid() const { return true; }
+		virtual std::string errorMessage() const { return "OK"; }
+	};
+
+	class Invalid: public ValidStatus {
+	public:
+		Invalid(const std::string & message): m_message(message) {}
+		virtual bool isValid() const { return false; }
+		virtual std::string errorMessage() const { return m_message; }
+
+	protected:
+		std::string m_message;
+	};
+
 	class Node {
 	public:
 		Node() {}
@@ -47,7 +74,7 @@ namespace JSON {
 		virtual String * createString(const std::string & name) { return NULL; }
 		virtual Number * createNumber(const std::string & name) { return NULL; }*/
 		virtual Type getType() const = 0;
-		virtual bool validate() { return true; }
+		virtual bool validate(std::string & message) const { return true; }
 		
 	protected:
 //		std::string name;
@@ -190,8 +217,8 @@ namespace JSON {
 		};
 	}
 
-	bool parse(std::string filename, Struct * root);
-	bool store(std::string filename, const Struct * root);
+	bool parse(const std::string & filename, Struct * root);
+	bool store(const std::string & filename, const Struct * root);
 }
 
 #endif

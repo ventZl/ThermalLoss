@@ -12,23 +12,28 @@ namespace Model {
 /** Definition of material from which wall is composed */
 class Material: public JSON::Struct {
 public:
-	Material(): json_name(&this->m_name), json_conductivity(&this->m_conductivity), json_density(&this->m_density), m_conductivity(), m_density(0) { addProperties(); }
+	Material(): json_name(&this->m_name), json_altname(&this->m_altname), json_conductivity(&this->m_conductivity), json_density(&this->m_density), json_capacity(&this->m_capacity), m_conductivity(), m_density(0), m_capacity(0) { addProperties(); }
 	std::string name() const { return m_name; }
 	float conductivity() const { return m_conductivity; }
 	float density() const { return m_density; }
+	float capacity() const { return m_capacity; }
 	bool validate();
 
 protected:
 	void addProperties() {
-		addProperty("name", &json_name); addProperty("conductivity", &json_conductivity); addProperty("density", &json_density);
+		addProperty("name", &json_name); addProperty("altname", &json_altname); addProperty("conductivity", &json_conductivity); addProperty("density", &json_density); addProperty("capacity", &json_capacity);
 	}
 
 	JSON::Simple::String json_name;
+	JSON::Simple::String json_altname;
 	JSON::Simple::Float json_conductivity;
 	JSON::Simple::Float json_density;
+	JSON::Simple::Float json_capacity;
 	std::string m_name;
+	std::string m_altname;
 	float m_conductivity;
 	float m_density;
+	float m_capacity;
 };
 
 /** Ordered list of materials */
@@ -63,8 +68,8 @@ public:
 	JSON_ARRAY_PROXY(MaterialArrayProxy, MaterialLibrary, m_materials, Material);
 
 	MaterialLibrary(): json_materials(this) { addProperties(); }
-	bool validate();
-	const Material * material(std::string & name) const;
+	bool init();
+	const Material * material(const std::string & name) const;
 
 protected:
 	void addProperties() {

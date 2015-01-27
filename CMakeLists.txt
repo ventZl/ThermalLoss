@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(ThermalLoss)
 
+add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src /usr/X11/include)
 link_directories(/usr/X11/lib)
 

@@ -13,6 +13,20 @@
 
 #include "json.h"
 
+class parseIstream: public std::ifstream {
+public:
+	parseIstream(const char * filename): std::ifstream(filename), m_lineReset(false), m_lineNo(1) {}
+	std::istream & get(char & c) { if (m_lineReset) { m_lineReset = false; m_lineBuffer = ""; m_lineNo++; } std::ifstream::get(c); m_lineBuffer += c; if (c == '\n' || c == '\r') m_lineReset = true; else m_lineReset = false; return *this; }
+	std::istream & unget() { if (!m_lineBuffer.empty()) m_lineBuffer.resize(m_lineBuffer.length() - 1); return std::ifstream::unget(); }
+	std::string line() const { return m_lineBuffer; }
+	unsigned lineNo() const { return m_lineNo; }
+
+protected:
+	std::string m_lineBuffer;
+	bool m_lineReset;
+	unsigned m_lineNo;
+};
+
 #define NODE_CAST_TO(type, obj)	(*(dynamic_cast<const type *>((obj))))
 
 static bool storeStruct(std::ostream & output, const std::string & name, const JSON::Struct & _struct);
@@ -111,7 +125,7 @@ JSON::String * JSON::Array::createString() {
 	return dynamic_cast<JSON::String *>(this->createItem());
 }
 
-bool JSON::store(std::string filename, const JSON::Struct * root) {
+bool JSON::store(const std::string & filename, const JSON::Struct * root) {
 	std::ofstream output(filename.c_str());
 	if (!output.is_open()) {
 		return false;
@@ -125,74 +139,126 @@ bool JSON::store(std::string filename, const JSON::Struct * root) {
 	return true;
 }
 
-void parseArray(std::istream & input, JSON::Array & __array);
-void parseString(std::istream & input, JSON::String & __string);
-void parseNumber(std::istream & input, JSON::Number & __number);
-void parseStruct(std::istream & input, JSON::Struct & __struct);
+void parseError(parseIstream & stream, std::string errmsg) {
+	try {
+		parseIstream & parseStream = dynamic_cast<parseIstream &>(stream);
+		std::string lastLine = parseStream.line();
+		std::string outLine;
+		for (std::string::const_iterator it = lastLine.begin(); it != lastLine.end(); ++it) {
+			if (*it == '\t') {
+				outLine += "        ";
+			} else {
+				outLine += *it;
+			}
+		}
+		std::string restOfLine;
+		getline(stream, restOfLine);
+		std::string marker;
+		for (unsigned q = 0; q < outLine.length() - 1; q++) marker += '-';
+		marker += '^';
+		printf("Parse error on line %d: %s\n%s%s\n%s\n", parseStream.lineNo(), errmsg.c_str(), outLine.c_str(), restOfLine.c_str(), marker.c_str());
+	} catch (std::bad_cast & e) {
+		printf("Parse error: %s\n", errmsg.c_str());
+		abort();
+	}
+	exit(0);
+}
 
-void parseArray(std::istream & input, JSON::Array & __array) {
+char parseWhitespace(parseIstream & input) {
 	char c;
-	do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+	unsigned comment = 0;
+	do {
+		input.get(c);
+		if (c == '/') {
+			comment++;
+			c = ' ';
+		} else {
+			// this is not beginning of the comment thus unget last char and return /
+			if (comment == 1) {
+				input.unget();
+				return '/';
+			}
+		}
+		if (comment > 1) {
+			if (c != '\n') c = ' '; // let everything inside comment until newline be whitespace
+		}
+	} while (c == ' ' || c == '\t' || c == '\n');
+	return c;
+}
+
+void parseArray(parseIstream & input, JSON::Array & __array);
+void parseString(parseIstream & input, JSON::String & __string);
+void parseNumber(parseIstream & input, JSON::Number & __number);
+void parseStruct(parseIstream & input, JSON::Struct & __struct);
+
+void parseArray(parseIstream & input, JSON::Array & __array) {
+	char c;
+	c = parseWhitespace(input);
 //	printf("> %c >", c);
 	if ( c == '[') {
 		while (1) {
-			do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+			c = parseWhitespace(input);
+//			do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
 //			printf("> %c >", c);
 			if (c == ']') break;				// for allowing of empty arrays
 			input.unget();
 			if (c == '{') {
 //				printf("\nParsing struct item...\n"); 
 				JSON::Struct * new_struct = __array.createStruct();
-				if (new_struct == NULL) throw std::runtime_error("Schema doesn't allow struct to be item of this array");
+				if (new_struct == NULL) parseError(input, "Schema doesn't allow struct to be item of this array");
 				parseStruct(input, *new_struct);
 //				printf("\nEnd of parse...\n");
 			} else if (c == '[') {
 //				printf("\nParsing array item...\n"); 
 				JSON::Array * new_array = __array.createArray();
-				if (new_array == NULL) throw std::runtime_error("Schema doesn't allow array to be item of this array");
+				if (new_array == NULL) parseError(input, "Schema doesn't allow array to be item of this array");
 				parseArray(input, *new_array);
 //				printf("\nEnd of parse...\n");
 			} else if (c == '"') {
 //				printf("\nParsing string item...\n"); 
 				JSON::String * new_string = __array.createString();
-				if (new_string == NULL) throw std::runtime_error("Schema doesn't allow string to be item of this array");
+				if (new_string == NULL) parseError(input, "Schema doesn't allow string to be item of this array");
 				parseString(input, *new_string);
 //				printf("\nEnd of parse...\n");
 			} else if ((c >= '0' && c <= '9') || (c == '.') || (c == '-')) {
 //				printf("\nParsing number item...\n"); 
 				JSON::Number * new_number = __array.createNumber();
-				if (new_number == NULL) throw std::runtime_error("Schema doesn't allow number to be item of this array");
+				if (new_number == NULL) parseError(input, "Schema doesn't allow number to be item of this array");
 				parseNumber(input, *new_number);
 //				printf("\nEnd of parse...\n");
 			} else {
-				throw std::invalid_argument("Misformatted input file. Unidentified character inside array definition!");
+				parseError(input, "Misformatted input file. Unidentified character inside array definition!");
 			}
-			do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+			c = parseWhitespace(input);
+//			do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
 //			printf("> %c >", c);
 			if (c == ']') break;
-			if (c != ',') { throw std::invalid_argument("Misformatted array record. Expecting , or }!"); }
+			if (c != ',') { parseError(input, "Misformatted array record. Expecting , or }!"); }
 		}	
-	} else throw std::invalid_argument("Internal error: expected array record, input contains something else");
-	if (!__array.validate()) { throw std::runtime_error("Array does not validate against schema!"); }
+	} else parseError(input, "Internal error: expected array record, input contains something else");
+	std::string message;
+	if (!__array.validate(message)) { parseError(input, message); }
 }
 
-void parseString(std::istream & input, JSON::String & __string) {
+void parseString(parseIstream & input, JSON::String & __string) {
 	char c;
 	std::string value;
-	do { input.get(c);	} while (c == ' ' || c == '\t' || c == '\n');
-	if (c != '"') { throw std::invalid_argument("BLA string \""); }
+	c = parseWhitespace(input);
+//	do { input.get(c);	} while (c == ' ' || c == '\t' || c == '\n');
+	if (c != '"') { parseError(input, "BLA string \""); }
 	do {
 		input.get(	c);
 //		printf("> %c >", c);
 		if (c != '"') value += c;
 	} while (c != '"');
 	__string.setValue(value);
-	if (!__string.validate()) { throw std::runtime_error("Schema does not allow string content \"" + __string.getValue() + "\" here!"); }
+	std::string message;
+	if (!__string.validate(message)) { parseError(input, message); } //"Schema does not allow string content \"" + __string.getValue() + "\" here!"); }
 	return;
 		
 }
 
-void parseNumber(std::istream & input, JSON::Number & __number) {
+void parseNumber(parseIstream & input, JSON::Number & __number) {
 	char c;
 	int sign = 1;
 	int integral = 0;
@@ -216,19 +282,22 @@ void parseNumber(std::istream & input, JSON::Number & __number) {
 	if (f_size == 0) retNum = (float) sign * (float) integral;
 	else  retNum = (float) sign * ((float) integral + ((float) fractional / (float) f_size));
 	__number.setValue(retNum);
-	if (!__number.validate()) { throw std::runtime_error("Number does not validate against schema!"); }
+	std::string message;
+	if (!__number.validate(message)) { parseError(input, message); } //"Number does not validate against schema!"); }
 //	printf("Parsed number is %f\n", retNum);
 	return;
 }
 
-void parseStruct(std::istream & input, JSON::Struct & __struct) {
+void parseStruct(parseIstream & input, JSON::Struct & __struct) {
 //	printf("\nENTERING PARSE_STRUCT\n");
 	char c;
-	do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+	c = parseWhitespace(input);
+//	do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
 	if ( c == '{') {
 		while (1) {
 			std::string property_name;
-			do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+			c = parseWhitespace(input);
+//			do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
 //			printf("> %c >", c);
 			if ( c == '}') break;
 			else if (c == '"') {
@@ -237,51 +306,55 @@ void parseStruct(std::istream & input, JSON::Struct & __struct) {
 					if (c != '"') property_name += c;
 //					printf("> %c >", c);
 				} while (c != '"');
-				do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+				c = parseWhitespace(input);
+//				do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
 //				printf("> %c >", c);
-				if (c != ':') { throw std::invalid_argument("Misformatted input file. Missing semicolon after property name `" + property_name + "`!"); }
-				do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+				if (c != ':') { parseError(input, "Misformatted input file. Missing colon after property name `" + property_name + "`!"); }
+				c = parseWhitespace(input);
+//				do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
 //				printf("> %c >", c);
 				input.unget();
 				if (c == '{') {
 //					printf("\nParsing nested struct \"%s\"...\n", property_name.c_str()); 
 					JSON::Struct * new_struct = __struct.createStruct(property_name);
-					if (new_struct == NULL) throw std::runtime_error(std::string("Schema doesn't allow struct property '" + property_name + "' here"));
+					if (new_struct == NULL) parseError(input, std::string("Schema doesn't allow struct property '" + property_name + "' here"));
 					parseStruct(input, *new_struct);
 //					printf("\nEnd of nested parse...\n");
 				} else if (c == '[') {
 //					printf("\nParsing nested array \"%s\"...\n", property_name.c_str()); 
 					JSON::Array * new_array = __struct.createArray(property_name);
-					if (new_array == NULL) throw std::runtime_error(std::string("Schema doesn't allow array property '" + property_name + "' here"));
+					if (new_array == NULL) parseError(input, std::string("Schema doesn't allow array property '" + property_name + "' here"));
 					parseArray(input, *new_array);
 //					printf("\nEnd of nested parse...\n");
 				} else if (c == '"') {
 //					printf("\nParsing nested string \"%s\"...\n", property_name.c_str()); 
 					JSON::String * new_string = __struct.createString(property_name);
-					if (new_string == NULL) throw std::runtime_error(std::string("Schema doesn't allow string property '" + property_name + "' here"));
+					if (new_string == NULL) parseError(input, std::string("Schema doesn't allow string property '" + property_name + "' here"));
 					parseString(input, *new_string);
 //					printf("\nEnd of nested parse...\n");
-				} else if ((c >= '0' && c <= '9') || (c == '.')) {
+				} else if ((c >= '0' && c <= '9') || (c == '.') || ( c == '-')) {
 //					printf("\nParsing nested number \"%s\"...\n", property_name.c_str()); 
 					JSON::Number * new_number = __struct.createNumber(property_name);
-					if (new_number == NULL) throw std::runtime_error(std::string("Schema doesn't allow numeric property '" + property_name + "' here"));
+					if (new_number == NULL) parseError(input, std::string("Schema doesn't allow numeric property '" + property_name + "' here"));
 					parseNumber(input, *new_number);
 //					printf("\nEnd of nested parse...\n");
 				} else {
-					throw std::invalid_argument("Misformatted input file. Unidentified character after semicolon in property definition!");
+					parseError(input, "Misformatted input file. Unidentified character after semicolon in property definition!");
 				}
-				do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
+				c = parseWhitespace(input);
+//				do { input.get(c); } while (c == ' ' || c == '\t' || c == '\n');
 //				printf("> %c >", c);
 				if (c == '}') break;
-				if (c != ',') { throw std::invalid_argument("Misformatted struct record. Expecting , or }!"); }
+				if (c != ',') { parseError(input, "Misformatted struct record. Expecting , or }!"); }
 			}
 		}
-	} else throw std::invalid_argument("Misformatted struct record. Expecting { !");
-	if (!__struct.validate()) { throw std::runtime_error("Struct does not respect schema!\n"); }
+	} else parseError(input, "Misformatted struct record. Expecting { !");
+	std::string message;
+	if (!__struct.validate(message)) { parseError(input, message); } //"Struct does not respect schema!\n"); }
 }
 
-bool JSON::parse(std::string filename, JSON::Struct * root) {
-	std::ifstream input(filename.c_str());
+bool JSON::parse(const std::string & filename, JSON::Struct * root) {
+	parseIstream input(filename.c_str());
 	if (!input.is_open()) {
 		return false;
 	}

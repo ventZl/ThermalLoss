@@ -1,0 +1,280 @@
+{
+	"points" : [
+		{ "x" : 0, "y" : 0 },
+		{ "x" : 0.35, "y" : 0.35 },
+		{ "x" : 5.3, "y" : 0.35 },
+		{ "x" : 5.3, "y" : 5.35 },
+		{ "x" : 0.35, "y" : 5.35 },
+		{ "x" : 5.3, "y" : 7.65 },
+		{ "x" : 0.35, "y" : 7.65 },
+		{ "x" : 5.3, "y" : 12.8 },
+		{ "x" : 0.35, "y" : 12.8 },
+		{ "x" : 5.3, "y" : 14.65 },
+		{ "x" : 2.825, "y" : 14.65 },
+		{ "x" : 2.825, "y" : 12.8 },
+		{ "x" : 5.3, "y" : 17.65 },
+		{ "x" : 2.825, "y" : 17.65 },
+		{ "x" : 0.35, "y" : 17.65 },
+		{ "x" : 5.35, "y" : 21.05 },
+		{ "x" : 2.825, "y" : 21.05 },
+		{ "x" : 2.825, "y" : 22.05 }, 
+		{ "x" : 0.35, "y" : 22.05 },
+		{ "x" : 5.3, "y" : 24.05 },
+		{ "x" : 2.825, "y" : 24.05 },
+		{ "x" : 0.35, "y" : 24.05 },
+		{ "x" : 5.3, "y" : 27.5 },
+		{ "x" : 0.35, "y" : 27.5 }
+	],
+	"rooms" : [
+		{
+			"corners" : [ 1, 2, 3, 4 ],
+			"height" : 2.2,
+			"level" : 0,
+			"walls" : [
+				{ "type" : "outerWall",
+					"windows" : [
+						{ "name" : "window@1-2@double" }
+					] }, { "type" : "outerWall",
+					"windows" : [
+						{ "name" : "window@1-2@double" }
+					] }, { "type" : "brickWall" }, { "type" : "outerWall" }
+			]
+		},
+		{
+			"corners" : [ 4, 3, 5, 6 ],
+			"height" : 2.2,
+			"level" : 0,
+			"walls" : [
+				{ "type" : "brickWall" }, { "type" : "outerWall", "windows" : [ { "name" : "doors@outer" } ] }, { "type" : "brickWall" }, { "type" : "outerWall" }
+			]
+		},
+		{
+			"corners" : [ 6, 5, 7, 11, 8 ],
+			"height" : 2.2,
+			"level" : 0,
+			"walls" : [
+				{ "type" : "brickWall" }, { "type" : "outerWall", "windows" : [ { "name" : "window@1-1@double" } ] }, { "type" : "stoneWall" }, { "type" : "stoneWall" }, { "type" : "outerWall" }
+			]
+		},
+		{
+			"corners" : [ 11, 7, 9, 10 ],
+			"height" : 2.2,
+			"walls" : [
+				{ "type" : "stoneWall" }, { "type" : "outerWall", "windows" : [ { "name" : "doors@outer" } ] }, { "type" : "brickWall" }, { "type" : "brickWall" }
+			]
+		},
+		{
+			"corners" : [ 10, 9, 12, 13 ],
+			"height" : 2.2,
+			"level" : 0,
+			"walls" : [
+				{ "type" : "stoneWall" }, { "type" : "outerWall", "windows" : [ { "name" : "window@small@double" } ] }, { "type" : "stoneWall" }, { "type" : "brickWall" }
+			]
+		},
+		{
+			"corners" : [ 8, 11, 10, 13, 14 ],
+			"height" : 2.2,
+			"level" : 0,
+			"walls" : [
+				{ "type" : "stoneWall" }, { "type" : "brickWall" }, { "type" : "brickWall" }, { "type" : "stoneWall" }, { "type" : "outerWall", "windows" : [ { "name" : "window@small-W@double" } ] }
+			]
+		},
+		{
+			"corners" : [ 13, 12, 15, 16 ],
+			"height" : 2.2,
+			"level" : 0,
+			"temperature" : 5,
+			"walls" : [
+				{ "type" : "stoneWall" }, { "type" : "outerWall", "windows" : [ { "name" : "window@small-H@double" }, { "name" : "doors@outer" } ] }, { "type" : "brickWall" }, { "type" : "brickWall" },
+			]
+		},
+		{
+			"corners" : [ 14, 13, 16, 17, 18 ],
+			"height" : 2.2,
+			"level" : 0,
+			"walls" : [
+				{ "type" : "stoneWall" }, { "type" : "brickWall" }, { "type" : "brickWall" }, { "type" : "brickWall" }, { "type" : "outerWall", "windows" : [ { "name" : "window@small@double" }, { "name" : "window@small@double" } ] }
+			]
+		},
+		{
+			"corners" : [ 16, 15, 19, 20, 17 ],
+			"height" : 2.2,
+			"level" : 0,
+			"temperature" : 4,
+			"walls" : [
+				{ "type" : "brickWall" }, { "type" : "outerWall", , "windows" : [ { "name" : "window@small-H@double" } ] }, { "type" : "stoneWall" }, { "type" : "brickWall" }, { "type" : "brickWall" }
+			]
+		},
+		{
+			"corners" : [ 18, 17, 20, 21 ],
+			"height" : 2.2,
+			"level" : 0,
+			"temperature" : 4,
+			"walls" : [
+				{ "type" : "brickWall" }, { "type" : "brickWall" }, { "type" : "stoneWall" }, { "type" : "outerWall" }
+			]
+		},
+		{
+			"corners" : [ 21, 20, 19, 22, 23 ],
+			"height" : 2.1,
+			"level" : 0,
+			"temperature" : 4,
+			"walls" : [
+				{ "type" : "stoneWall" }, { "type" : "stoneWall" }, { "type" : "outerWall" }, { "type" : "outerWall" }, { "type" : "outerWall" }
+			]
+		}
+	],
+	"walltypes" : [
+		{ 
+			"name" : "outerWall",
+			"composition" : [
+				{ "material" : "andezit@Ruskov", "width" : 0.7 }
+			]	
+		},
+		{
+			"name" : "stoneWall",
+			"composition" : [
+				{ "material" : "andezit@Ruskov", "width" : 0.6 }
+			]
+		},
+		{
+			"name" : "brickWall",
+			"composition" : [
+				{ "material" : "tehla@1700" , "width" : 0.2 }
+			]
+		},
+		{
+			"name" : "groundFloor",
+			"composition" : [
+				{ "material" : "linoleum", "width" : 0.04 },
+				{ "material" : "beton", "width" : 0.05 },
+				{ "material" : "skvarobeton@1800", "width" : 0.2 },
+			]
+		},
+		{
+			"name" : "ceilingFloor",
+			"composition" : [
+				{ "material" : "skvarobeton@1000", "width" : 0.03 },
+				{ "material" : "drevo@tvrde(K)", "width" : 0.05 }
+			]
+		}
+	],
+	"floors" : [
+		"groundFloor", "ceilingFloor"
+	],
+	"windows" : [
+		{
+			"name" : "window@1-2@double",
+			"width" : 1.44,
+			"height" : 1.33,
+			"depth" : 0.08,
+			"material" : "drevo@makke(K)",
+			"holes" : [
+				{
+					"width" : 1.28,
+					"height" : 1.17,
+					"layers" : [
+						{ "material" : "glass", "depth" : 0.004 },
+						{ "material" : "air", "depth" : 0.042 },
+						{ "material" : "glass", "depth" : 0.004 }
+					]
+				}
+			]
+		},
+		{
+			"name" : "window@1-1@double",
+			"width" : 1.15,
+			"height" : 1.33,
+			"depth" : 0.08,
+			"material" : "drevo@makke(K)",
+			"holes" : [
+				{
+					"width" : 0.99,
+					"height" : 1.17,
+					"layers" : [
+						{ "material" : "glass", "depth" : 0.004 },
+						{ "material" : "air", "depth" : 0.042 },
+						{ "material" : "glass", "depth" : 0.004 }
+					]
+				}
+			]
+		},
+		{
+			"name" : "window@small@double",
+			"width" : 0.53,
+			"height" : 0.53,
+			"depth" : 0.08,
+			"material" : "drevo@makke(K)",
+			"holes" : [
+				{
+					"width" : 0.37,
+					"height" : 0.37,
+					"layers" : [
+						{ "material" : "glass", "depth" : 0.004 },
+						{ "material" : "air", "depth" : 0.042 },
+						{ "material" : "glass", "depth" : 0.004 }
+					]
+				}
+			]
+		},
+		{
+			"name" : "window@small-H@double",
+			"width" : 0.85,
+			"height" : 0.53,
+			"depth" : 0.08,
+			"material" : "drevo@makke(K)",
+			"holes" : [
+				{
+					"width" : 1.28,
+					"height" : 1.17,
+					"layers" : [
+						{ "material" : "glass", "depth" : 0.004 },
+						{ "material" : "air", "depth" : 0.042 },
+						{ "material" : "glass", "depth" : 0.004 }
+					]
+				}
+			]
+		},
+		{
+			"name" : "window@small-W@double",
+			"width" : 1.12,
+			"height" : 0.53,
+			"depth" : 0.08,
+			"material" : "drevo@makke(K)",
+			"holes" : [
+				{
+					"width" : 0.96,
+					"height" : 0.37,
+					"layers" : [
+						{ "material" : "glass", "depth" : 0.004 },
+					]
+				}
+			]
+		},
+		{
+			"name" : "doors@outer",
+			"width" : 0.9,
+			"height" : 2.0,
+			"depth" : 0.4,
+			"material" : "ocel",
+			"holes" : [
+				{
+					"width" : 0.894,
+					"height" : 1.997,
+					"depth" : 0.4,
+					"material" : "drevo@makke(K)",
+					"holes" : [
+						{
+							"width" : 0.2,
+							"height" : 1.0,
+							"depth" : 0.04,
+							"material" : "glass" 
+						}
+					]
+				} 
+			]
+		}
+	]
+
+}
+

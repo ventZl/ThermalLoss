@@ -1,0 +1,50 @@
+{
+	"points" : [
+		{ "x" : 0.25, "y" : 0.25 },
+		{ "x" : 12.75, "y" : 0.25 },
+		{ "x" : 12.75, "y" : 5.15 },
+		{ "x" : 9.75, "y" : 5.15 },
+		{ "x" : 9.75, "y" : 12.75 },
+		{ "x" : 0.25, "y": 12.75 }
+	],
+	"rooms" : [
+		{
+			"height" : 2.8,
+			"walls" : [
+				{ "type" : "outerWall" },
+				{ "type" : "outerWall" },
+				{ "type" : "outerWall" },
+				{ "type" : "outerWall" },
+				{ "type" : "outerWall" },
+				{ "type" : "outerWall" }
+			],
+			"corners" : [
+				0, 1, 2, 3, 4, 5
+			]
+		}
+
+	],
+	"walltypes" : [
+		{ 
+			"name" : "outerWall",
+			"composition" : [
+				{ "material" : "sample@wall", "width" : 0.5 }
+			]	
+		},
+		{
+			"name" : "groundFloor",
+			"composition" : [
+				{ "material" : "penove_sklo", "width" : 0.2 },
+			]
+		},
+		{
+			"name" : "ceilingFloor",
+			"composition" : [
+				{ "material" : "sklenna_vlna", "width" : 0.3 },
+			]
+		}
+	],
+	"floors" : [
+		"groundFloor", "ceilingFloor"
+	]
+}

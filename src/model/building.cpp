@@ -3,28 +3,55 @@
 
 #define pow2(x)	((x) * (x))
 
-double Model::Point::distance(const Point * other) const {
+/*double Model::Point::distance(const Point * other) const {
 	return sqrt(pow2(this->x() - other->x()) + pow2(this->y() - other->y())); 
-}
+}*/
 
-bool Model::Building::validate() {
-//	unsigned max_point = m_points.size();
+bool Model::WindowDef::validate(std::string & message) const {
+	if (!m_holes.empty() && !m_layers.empty()) {
+		message = "Window defitinition contains both layers and holes. Only one of them can be present!";
+		return false;
+	}
 	return true;
 }
 
-bool Model::Room::validate() {
+bool Model::Building::validate(std::string & message) const {
+	if (m_rooms.empty()) {
+		message = "Building definition contains no room definitions";
+		return false;
+	}
+	if (m_points.empty()) {
+		message = "Building definition contains no point definitions";
+		return false;
+	}
+	if (m_walltype.empty()) {
+		message = "Building definition contains no wall types";
+		return false;
+	}
+	return true;
+}
+
+bool Model::Room::validate(std::string & message) const {
 	// we need equal number of walls and it's corners. first one is reused for both first and last wall
-	if (m_points.size() != m_walls.size()) return false;
+	if (m_points.size() != m_walls.size()) {
+		message = "Number of room corners does not match number of room walls";
+		return false;
+	}
+	if (m_level < 0) {
+		message = "Level below zero is not supported";
+		return false;
+	}
 /*	for (PointRefVector::const_iterator it = m_points.begin(); it != m_points.end(); ++it) {
 		if (m_building->point((*it)->getValue()) == NULL) return false;
 	}*/
 	return true;
 }
 
-const Model::Point * Model::Building::point(unsigned offset) const {
-	if (offset < m_points.size()) return m_points[offset];
+/*
+const Model::Point & Model::Building::point(unsigned offset) const {
+	if (offset < m_points.size()) return *(m_points[offset]);
 	return NULL;
-}
+}*/
 
 /** resistance K/W */
 /*bool Model::Window::validate() {

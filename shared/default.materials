@@ -1,0 +1,88 @@
+{
+	"materials" : [
+		{ "name" : "cadic", "altname" : "", "conductivity" : 4.200, "capacity" : 920, "density" : 3200 },
+		{ "name" : "mramor", "altname" : "", "conductivity" : 3.500, "capacity" : 920, "density" : 2800 },
+		{ "name" : "pieskovec", "altname" : "", "conductivity" : 1.700, "capacity" : 920, "density" : 2600 },
+		{ "name" : "porfyr", "altname" : "", "conductivity" : 1.700, "capacity" : 920, "density" : 2800 },
+		{ "name" : "poda", "altname" : "", "conductivity" : 2.300, "capacity" : 920, "density" : 2000 },
+		{ "name" : "vapenec", "altname" : "", "conductivity" : 1.400, "capacity" : 920, "density" : 2500 },
+		{ "name" : "zula", "altname" : "", "conductivity" : 3.100, "capacity" : 920, "density" : 2500 },
+		{ "name" : "andezit@Ruskov", "altname" : "andezit@Ruskov", "conductivity" : 1.150, "capacity" : 802, "density" : 0 },
+
+		{ "name" : "voda", "altname" : "water", "conductivity" : 0.6, "capacity" : 4180, "density" : 998 },
+
+		{ "name" : "tehlovina@800", "altname" : "", "conductivity" : 0.510, "capacity" : 920, "density" : 800 },
+		{ "name" : "tehlovina@1400", "altname" : "", "conductivity" : 0.640, "capacity" : 920, "density" : 1400 },
+		{ "name" : "tehlovina@2000", "altname" : "", "conductivity" : 1.01, "capacity" : 920, "density" : 2000 },
+
+		{ "name" : "keramicka_dlazba", "altname" : "", "conductivity" : 1.01, "capacity" : 840, "density" : 2000 },
+		{ "name" : "koberec", "altname" : "", "conductivity" : 0.065, "capacity" : 1880, "density" : 160 },
+		{ "name" : "linoleum", "altname" : "", "conductivity" : 0.190, "capacity" : 1880, "density" : 1200 },
+
+		{ "name" : "med", "altname" : "copper", "conductivity" : 372, "capacity" : 380, "density" : 8800 },
+		{ "name" : "hlinik", "altname" : "alluminium", "conductivity" : 204, "capacity" : 870, "density" : 2700 },
+		{ "name" : "ocel", "altname" : "steel", "conductivity" : 50, "capacity" : 440, "density" : 7850 },
+
+		{ "name" : "keramzit@400", "altname" : "", "conductivity" : 0.130, "capacity" : 1260, "density" : 400 },
+		{ "name" : "keramzit@500", "altname" : "", "conductivity" : 0.140, "capacity" : 1260, "density" : 500 },
+		{ "name" : "keramzit@600", "altname" : "", "conductivity" : 0.160, "capacity" : 1260, "density" : 600 },
+		{ "name" : "keramzit@700", "altname" : "", "conductivity" : 0.170, "capacity" : 1260, "density" : 700 },
+		{ "name" : "keramzit@800", "altname" : "", "conductivity" : 0.210, "capacity" : 1260, "density" : 800 },
+		{ "name" : "keramzit@900", "altname" : "", "conductivity" : 0.230, "capacity" : 1260, "density" : 900 },
+		{ "name" : "keramzit@1000", "altname" : "", "conductivity" : 0.240, "capacity" : 1260, "density" : 1000 },
+
+		{ "name" : "korok@drt", "altname" : "", "conductivity" : 0.040, "capacity" : 1880, "density" : 45 },
+		{ "name" : "piliny", "altname" : "", "conductivity" : 0.120, "capacity" : 2510, "density" : 200 },
+		{ "name" : "hlina@sucha", "altname" : "", "conductivity" : 0.700, "capacity" : 920, "density" : 1600 },
+		{ "name" : "piesok", "altname" : "", "conductivity" : 0.950, "capacity" : 960, "density" : 1750 },
+		{ "name" : "skvara", "altname" : "", "conductivity" : 0.270, "capacity" : 750, "density" : 750 },
+		{ "name" : "strk", "altname" : "", "conductivity" : 0.650, "capacity" : 750, "density" : 1650 },
+		{ "name" : "sadrokarton", "altname" : "", "conductivity" : 0.220, "capacity" : 1060, "density" : 750 },
+
+
+		{ "name" : "drevovlakno@200", "altname" : "", "conductivity" : 0.075, "capacity" : 1630, "density" : 200 },
+		{ "name" : "drevovlakno@400", "altname" : "", "conductivity" : 0.098, "capacity" : 1630, "density" : 400 },
+		{ "name" : "drevovlakno@600", "altname" : "", "conductivity" : 0.130, "capacity" : 1630, "density" : 600 },
+		{ "name" : "drevovlakno@800", "altname" : "", "conductivity" : 0.150, "capacity" : 1630, "density" : 800 },
+		{ "name" : "drevovlakno@1000", "altname" : "", "conductivity" : 0.170, "capacity" : 1630, "density" : 1000 },
+
+		{ "name" : "cetris@400", "altname" : "", "conductivity" : 0.150, "capacity" : 1580, "density" : 400 },
+		{ "name" : "cetris@800", "altname" : "", "conductivity" : 0.240, "capacity" : 1580, "density" : 800 },
+		{ "name" : "cetris@1200", "altname" : "", "conductivity" : 0.350, "capacity" : 1580, "density" : 1200 },
+
+		{ "name" : "korok@doska", "altname" : "", "conductivity" : 0.064, "capacity" : 1880, "density" : 150 },
+		{ "name" : "drevotrieska", "altname" : "", "conductivity" : 0.110, "capacity" : 1500, "density" : 800 },
+		{ "name" : "drevo@makke(R)", "altname" : "", "conductivity" : 0.410, "capacity" : 2510, "density" : 400 },
+		{ "name" : "drevo@makke(K)", "altname" : "", "conductivity" : 0.180, "capacity" : 2510, "density" : 400 },
+		{ "name" : "drevo@tvrde(R)", "altname" : "", "conductivity" : 0.220, "capacity" : 2510, "density" : 600 },
+		{ "name" : "drevo@tvrde(K)", "altname" : "", "conductivity" : 0.110, "capacity" : 2510, "density" : 600 },
+
+		{ "name" : "drevovlakno@makke", "altname" : "", "conductivity" : 0.046, "capacity" : 1380, "density" : 230 },
+
+		{ "name" : "polystyren@extrudovany", "altname" : "", "conductivity" : 0.038, "capacity" : 0, "density" : 0 },
+		{ "name" : "penove_sklo", "altname" : "", "conductivity" : 0.040, "capacity" : 0, "density" : 0 },
+		{ "name" : "sklenna_vlna", "altname" : "", "conductivity" : 0.040, "capacity" : 0, "density" : 0 },
+		{ "name" : "mineralna_vlna", "altname" : "", "conductivity" : 0.39, "capacity" : 0, "density" : 0 },
+		{ "name" : "konope", "altname" : "", "conductivity" : 0.040, "capacity" : 0, "density" : 30 },
+		{ "name" : "slama", "altname" : "", "conductivity" : 0.065, "capacity" : 0, "density" : 0 },
+		{ "name" : "ovcia_vlna", "altname" : "", "conductivity" : 0.040, "capacity" : 0, "density" : 0 },
+		{ "name" : "celuloza@fukana", "altname" : "", "conductivity" : 0.040, "capacity" : 0, "density" : 40 },
+		{ "name" : "perlit@expandovany", "altname" : "", "conductivity" : 0.040, "capacity" : 0, "density" : 100 },
+
+		{ "name" : "beton", "altname" : "", "conductivity" : 1.300, "capacity" : 1020, "density" : 2200 },
+		{ "name" : "skvarobeton@1000", "altname" : "", "conductivity" : 0.520, "capacity" : 830, "density" : 1000 },
+		{ "name" : "skvarobeton@1200", "altname" : "", "conductivity" : 0.670, "capacity" : 830, "density" : 1200 },
+		{ "name" : "skvarobeton@1400", "altname" : "", "conductivity" : 0.730, "capacity" : 830, "density" : 1400 },
+		{ "name" : "skvarobeton@1600", "altname" : "", "conductivity" : 0.790, "capacity" : 830, "density" : 1600 },
+		{ "name" : "skvarobeton@1800", "altname" : "", "conductivity" : 0.900, "capacity" : 830, "density" : 1800 },
+		{ "name" : "skvarobeton@2000", "altname" : "", "conductivity" : 1.010, "capacity" : 830, "density" : 2000 },
+
+		{ "name" : "porobeton@480", "altname" : "", "conductivity" : 0.190, "capacity" : 840, "density" : 480 },
+		{ "name" : "porobeton@580", "altname" : "", "conductivity" : 0.210, "capacity" : 840, "density" : 580 },
+		{ "name" : "porobeton@680", "altname" : "", "conductivity" : 0.240, "capacity" : 840, "density" : 680 },
+
+		{ "name" : "tehla@1700", "altname" : "", "conductivity" : 0.73, "capacity" : 0, "density" : 1700 },
+		{ "name" : "tehla@1800", "altname" : "", "conductivity" : 0.77, "capacity" : 0, "density" : 1800 },
+		{ "name" : "sample@wall", "altname" : "sample@wall", "conductivity" : 0.1, "capacity" : 0, "density" : 0 }
+	]
+}
