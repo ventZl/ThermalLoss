@@ -1,0 +1,232 @@
+README FOR BUILDING DEFINITION FORMAT
+=====================================
+
+The building definition format is internally formatted as JSON document thus all
+rules applicable for JSON format hold also for building format. You can search
+for JSON format description online but brief description of format is included
+for sake of completeness.
+
+JSON format
+===========
+
+JSON allows to record structured information. It supports four basic types of
+data:
+* Strings
+* Numbers (both integer and numbers with fractional part /floats/)
+* Arrays of data
+* Structures with named members
+
+Strings
+-------
+Strings are enclosed in double-quotes. Currently only 8-bit strings are
+supported which does not contain double quote with string itself.
+
+Examples:
+"dog"
+"completely lazy and fat dog"
+"123.45"  (despite logically number, in double quotes treated as string!)
+
+Not strings:
+cat (is string literal and - as is - is not allowed in JSON)
+
+Numbers
+-------
+Numbers are not enclosed in double quotes. Both integer and float numbers are
+supported and distinguished (thus some inputs may not allow you to enter
+non-integral number). Numbers may be entered only in form of:
+
+SIIII.FFFFF
+
+where S is optional negative sign, IIII is integral part, '.' serves as
+separator for fractional part and FFFF stands for fractional part. Both '.' and
+fractional part are optional for fields where floats are expected. Scientific
+notation of floats is not supported right now.
+
+Examples:
+123.45
+-1234
+0.1
+
+Not valid numbers:
+.1 (omitting 0 is not allowed)
+12345- (negative sign must be written left of number)
+
+Arrays
+------
+Arrays are kind of ordered list of data items which itself may be arays too
+(creating array of array of items). Level of nesting is not limited in any way.
+Items of array not need to be of same type thus it is possible to have array
+which' first item is float, second is string, third is struct (see below) and
+fourth is next array. Arrays are written ad comma-separated list of items
+enclosed in square brackets. Comma after last item of array is not allowed.
+Arrays are indexed starting from 0.
+
+Examples:
+[ 1, 2, 3, 4 ]
+[ 1, 2.0, "three", [ 0, 0, 0, 0] ]
+
+Structures
+----------
+Structures are similar to arrays in fact that they contain more members but
+unlike arrays their data items are not ordered, but named. Members of structure
+can be of any type, including structure. Level of nesting is not limited in any
+way. Each member is defined as "name" : value pair. Double-quotes around member
+name are mandatory. Value may be any type of number, string, array or struct.
+Structure is defined as comma-separated list of member definitions enclosed in
+curly braces. No comma can be written after last member. Member names are always
+case-sensitive thus "Name" is different member than "name".
+
+Examples:
+{ "first" : 1, "second" : 2.0, "third", "three", "fourth" : { "array" : [ 0, 0,
+0, 0 ] } }
+
+General
+-------
+Whitespaces are not required at all but in case where file format is hand-edited
+is good practice to increase indentation level whenever starting new nested
+array and/or struct and decrease indentation level whenever ending it. Newlines
+outside of strings are completely ignored (except of parse error messages).
+
+BUILDING FORMAT
+===============
+Building format allows user to define properties of building in a way that
+ThermalLoss may be able to parse it and use the definition for calculations. The
+bulding is defined by several it's attributes:
+
+* Coordinates of junction points. Junction point is generally any place where
+  two walls have common corner and/or two walls connect.
+* Wall type definitions. These define composition of walls used for computation.
+* Rooms definitions which contain wall definitions (which in turn contains
+* window definitions), corners, ceiling height, etc.
+* Definition of floor compositions for each floor and top-most ceiling.
+
+Whole building is defined as single JSON structure written in single file
+(optionally having suffix of .building). Basic template is:
+
+{
+	"points" : .... points definition ....
+	"walltypes" : .... wall types definition ....
+	"rooms" : .... room definitions ....
+	"floors" : .... floor definitions ....
+}
+
+All dimensions are entered in meters (SI) all temperatures in degree Celsius /
+Kelvin (delta 1 deg. C = delta 1 K, 0 deg. C = 271.15 K, water freezing point =
+0 deg. C, water boiling point = 100 deg. C /at sea level atmospheric pressure/).
+Power uses unit of Watt (SI). Thermal resistance is processed in W/m.K,
+thermal conductivity in m.K/W.
+
+Points definition
+-----------------
+Each building has to provide point definitions. These are 2D points projected to
+plane parallel with ground floor. Only x and y coordinates are provided, z
+(height) coordinate is computed as requested. 
+
+Each point is defined as struct with two members "x" and "y", for example:
+
+{ "x" : 0.5, "y" : 0.5 }
+
+Points definition is then array of point definitions, for example two points:
+[ { "x" : 0.5, "y" : 0.5 }, { "x" : 1.0, "y": 1.0 } ]
+
+Any meaningful building need to have at least three points but this number is
+not enforced. Building cannot have no points defined.
+
+Wall types definition
+---------------------
+Each building has to provide wall type definitions. At least one wall type has
+to be provided while there are no built-in wall types. Wall type definition is
+written as structure containing following members:
+
+{
+	"name" : name of the wall type. Has to be unique among building, common names
+			 are "outerWall", "floorWall", "ceilingWall" useful for single floor 
+			 building,
+	"composition" : array of material usages in layers of wall and their 
+			 thicknesses
+}
+
+Material usage in turn is written as structure containin two members:
+"material" : name of material used for that particular layers
+"width" : widht of layer in meters
+
+Composition is then array of above structures ordered in inside - out (which may
+get complicated in building-internal walls) manner. For floor and ceiling the
+order is top - bottom.
+
+Example:
+{
+	"name" : "outerWall",
+	"composition" : 
+	[ 
+		{ 
+			"material" : "wood@light(P)", 
+			"width" : 0.04 
+		},
+		{
+			"material" : "brick",
+			"width" : 0.12
+		}
+	]
+}
+
+Describes brick wall with no outer covering layer and soft wood (with threads
+perpendicular to thermal dissipation) internal covering layer.
+
+Room definitions
+----------------
+Each room is defined as structure containing following members:
+"corners" : indices of ppoints (in points array) of junctions of wall around the
+room. There's no forced of order in which corners are entered but the order
+(clockwise or counter-clockwise) must be same for all rooms in one building!
+{
+	"height" : ceiling height excluding thickness of floor and/or ceiling,
+	"level" : floor on which building is present. 0 means ground floor, 1 first
+				floor above ground floor, etc.,
+	"temperature" : optional definition of temperature inside this room in case it
+				is not the same as in the rest of building (technical rooms, 
+				cold storages, garages, etc.),
+	"walls" : definition of walls. Little bit complex thus covered complexly 
+				below
+}
+
+Room must have same number of walls as it has corners. Common error is to omit
+junction point where another wall is connected on opposite side of wall than
+current room is. In such cases program is not able to pair opposite sides of
+same wall and incorrect results are output. If wall has junction on opposite
+side it has to be input as two identical segments.
+
+Walls definition
+----------------
+Walls definition is always an array of structures where each structure describes
+one wall. In simplest case when wall contains no hole (door / window) wall
+definition structure contains only reference to wall type. Example:
+
+[ { "type" : "outerWall" }, { "type" : "outerWall" } , { "type" : "outerWall" },
+{ "type" : "outerWall" } ]
+
+Above definition contains list of four simple walls of type "outerWall" with no
+holes at all.
+
+If wall contains some passage (window / door) the structure contains one
+additional member named "windows". Windows is a list (array) of passage
+definitions. Passage definition is as follows:
+
+{
+	"width" : width in meters,
+	"height" : height in meters,
+	"conductivity" : conductivity of passage filling
+}
+
+Conductivity should be usually provided in documentation of window / door or can
+be found in online available tables. It's unit is W/m^2.K.
+
+Array "windows" should contain one structure for each window / door which is
+presnet on the wall segment. Common error is to omit doors / windows on internal
+walls between two rooms because they are defined on opposite side of the wall.
+They have to be defined on both sides so calculations are correct.
+
+Conclusion
+==========
+Building definition format is so complicated that it is easy to create
+application producing the definition file.

@@ -96,8 +96,6 @@ void Calc::Room::addVertex(Geometry::Vertex3D * vertex) {
 
 
 void Calc::WindowBySpecs::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const {
-	printf("WindowBySpecs is being calculated...\n");
-//	abort();
 	double flow = (wall()->room()->calcTemp(parameters) - parameters.outTemp()) / m_resistance;
 	double power = m_area * flow;
 	losses.addWindowLoss(power);
@@ -106,7 +104,6 @@ void Calc::WindowBySpecs::calculate(const Model::MaterialLibrary & materials, co
 }
 
 void Calc::WindowByDef::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const {
-	printf("WindowByDef is being calculated...\n");
 	Calc::WindowDef * winDef = wall()->room()->calc()->windowDef(m_name);
 	double flow = (wall()->room()->calcTemp(parameters) - parameters.outTemp()) / winDef->resistance();
 	double power = winDef->area() * flow;
@@ -125,6 +122,12 @@ void Calc::WindowDef::calculate(const Model::MaterialLibrary & materials, const 
 		double m_resistance = 0;
 		m_area = m_width * m_height;
 		for (unsigned q = 0; q < m_layers.size(); q++) {
+			if (m_layers[q]->isSizeSet()) {
+				fprintf(stderr, "Layer has dimensions set (%.2fx%.2f vs %.2fx%.2f) albeit it should not have any!\n", m_layers[q]->width(), m_layers[q]->height(), width(), height());
+				exit(1);
+			}
+			m_layers[q]->width(width());
+			m_layers[q]->height(height());
 			m_resistance += m_layers[q]->resistance();
 		}
 		if (m_name != "") printf("Window definition resistance is %.3f m^2.K/W\n", m_resistance);
@@ -150,12 +153,16 @@ void Calc::WindowDef::calculate(const Model::MaterialLibrary & materials, const 
 		const Model::Material * material = materials.material(m_material);
 		if (material == NULL) {
 			printf("Material '%s' is not defined!\n", m_material.c_str());
-			abort();
+		}
+		if (compute_area <= 0.0) {
+			fprintf(stderr, "Size of holes is greater than size of window itself. Wrong window definition!\n");
+			exit(1);
 		}
 		sum_area += compute_area;
 		sum_resistance += compute_area * (m_depth / material->conductivity());
 		m_resistance = sum_resistance / sum_area;
-		if (m_name != "") printf("Window definition resistance is %.3f m^2.K/W\n", m_resistance);
+		m_resistance += 2*0.13;
+//		if (m_name != "") printf("Window definition '%s' U = %.3f W/m^2.K\n", m_name.c_str(), 1.0 / m_resistance);
 
 	} 
 }
@@ -277,7 +284,7 @@ Calc::Room * Calc::Calculation::collectRoom(const Calc::Calculation * calc, cons
 	room_->floorType(wallType(m_floors[room.level()]));
 	room_->ceilingType(wallType(m_floors[room.level() + 1]));
 	room_->roomTemp(room.internalTemperature());
-	printf("Room internal temperature is %.2f deg. C\n", room_->roomTemp());
+//	printf("Room internal temperature is %.2f deg. C\n", room_->roomTemp());
 	if (room.level() > 0) room_->bottomMost(false);
 	if (m_maxLevel < room.level()) m_maxLevel = room.level();
 	return room_;
@@ -285,14 +292,12 @@ Calc::Room * Calc::Calculation::collectRoom(const Calc::Calculation * calc, cons
 
 Calc::Window * Calc::Calculation::collectWindow(const Calc::Wall * wall, const Model::Window & window) {
 	if (window.name() == "") {
-		printf("Colecting window defined by it\'s specs...\n");
 		Calc::WindowBySpecs * win = new Calc::WindowBySpecs(wall);
 		win->resistance(1.0/window.conductivity());
 		win->area(window.surface());
 		m_windows.push_back(win);
 		return win;
 	} else {
-		printf("Collecting window defined by reference\n");
 		Calc::WindowByDef * win = new Calc::WindowByDef(wall);
 		win->name(window.name());
 		return win;
@@ -342,7 +347,7 @@ Model::Losses * Calc::Calculation::calculate(Model::Parameters & parameters, Mod
 	for (unsigned q = 0; q < m_walls.size(); q++) {
 		for (unsigned w = q+1; w < m_walls.size(); w++) {
 			if ((*m_walls[q]).isOpposite(*(m_walls[w]))) {
-				fprintf(stderr, "Wall %d is opposite side of wall %d!\n", q, w);
+//				fprintf(stderr, "Wall %d is opposite side of wall %d!\n", q, w);
 				m_walls[q]->otherRoom(m_walls[w]->room());
 				m_walls[w]->otherRoom(m_walls[q]->room());
 			}
@@ -353,13 +358,12 @@ Model::Losses * Calc::Calculation::calculate(Model::Parameters & parameters, Mod
 		m_walls[q]->calculate(materials, parameters, *outLosses);
 	}
 
-	printf("rooms size is %d\n", (int) m_rooms.size());
 	for (unsigned q = 0; q < m_rooms.size(); q++) {
 		m_rooms[q]->calculate(materials, parameters, *outLosses);
 	}
 
 	for (unsigned q = 0; q < m_windows.size(); q++) {
-		printf("Calculating window %d\n", q);
+//		printf("Calculating window %d\n", q);
 		m_windows[q]->calculate(materials, parameters, *outLosses);
 	}
 

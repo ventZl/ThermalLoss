@@ -155,7 +155,9 @@
 			"name" : "ceilingFloor",
 			"composition" : [
 				{ "material" : "skvarobeton@1000", "width" : 0.03 },
-				{ "material" : "drevo@tvrde(K)", "width" : 0.05 }
+				{ "material" : "drevo@tvrde(K)", "width" : 0.05 },
+				{ "material" : "vzduch", "width" : 0.2 },
+				{ "material" : "hlinik", "width" : 0.001 }
 			]
 		}
 	],
@@ -174,9 +176,9 @@
 					"width" : 1.28,
 					"height" : 1.17,
 					"layers" : [
-						{ "material" : "sklo", "depth" : 0.004 },
-						{ "material" : "vzduch", "depth" : 0.042 },
-						{ "material" : "sklo", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.0015 },
+						{ "material" : "vzduch", "depth" : 0.047 },
+						{ "material" : "sklo", "depth" : 0.0015 }
 					]
 				}
 			]
@@ -192,9 +194,9 @@
 					"width" : 0.99,
 					"height" : 1.17,
 					"layers" : [
-						{ "material" : "sklo", "depth" : 0.004 },
-						{ "material" : "vzduch", "depth" : 0.042 },
-						{ "material" : "sklo", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.0015 },
+						{ "material" : "vzduch", "depth" : 0.047 },
+						{ "material" : "sklo", "depth" : 0.0015 }
 					]
 				}
 			]
@@ -210,9 +212,9 @@
 					"width" : 0.37,
 					"height" : 0.37,
 					"layers" : [
-						{ "material" : "sklo", "depth" : 0.004 },
-						{ "material" : "vzduch", "depth" : 0.042 },
-						{ "material" : "sklo", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.0015 },
+						{ "material" : "vzduch", "depth" : 0.047 },
+						{ "material" : "sklo", "depth" : 0.0015 }
 					]
 				}
 			]
@@ -225,12 +227,12 @@
 			"material" : "drevo@makke(K)",
 			"holes" : [
 				{
-					"width" : 1.28,
-					"height" : 1.17,
+					"width" : 0.69,
+					"height" : 0.37,
 					"layers" : [
-						{ "material" : "sklo", "depth" : 0.004 },
-						{ "material" : "vzduch", "depth" : 0.042 },
-						{ "material" : "sklo", "depth" : 0.004 }
+						{ "material" : "sklo", "depth" : 0.0015 },
+						{ "material" : "vzduch", "depth" : 0.047 },
+						{ "material" : "sklo", "depth" : 0.0015 }
 					]
 				}
 			]
@@ -246,7 +248,7 @@
 					"width" : 0.96,
 					"height" : 0.37,
 					"layers" : [
-						{ "material" : "sklo", "depth" : 0.004 },
+						{ "material" : "sklo", "depth" : 0.0015 },
 					]
 				}
 			]
@@ -267,7 +269,7 @@
 						{
 							"width" : 0.2,
 							"height" : 1.0,
-							"depth" : 0.04,
+							"depth" : 0.02,
 							"material" : "sklo" 
 						}
 					]

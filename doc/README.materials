@@ -1,0 +1,107 @@
+README FOR BUILDING DEFINITION FORMAT
+=====================================
+
+The building definition format is internally formatted as JSON document thus all
+rules applicable for JSON format hold also for building format. You can search
+for JSON format description online but brief description of format is included
+for sake of completeness.
+
+JSON format
+===========
+
+JSON allows to record structured information. It supports four basic types of
+data:
+* Strings
+* Numbers (both integer and numbers with fractional part /floats/)
+* Arrays of data
+* Structures with named members
+
+Strings
+-------
+Strings are enclosed in double-quotes. Currently only 8-bit strings are
+supported which does not contain double quote with string itself.
+
+Examples:
+"dog"
+"completely lazy and fat dog"
+"123.45"  (despite logically number, in double quotes treated as string!)
+
+Not strings:
+cat (is string literal and - as is - is not allowed in JSON)
+
+Numbers
+-------
+Numbers are not enclosed in double quotes. Both integer and float numbers are
+supported and distinguished (thus some inputs may not allow you to enter
+non-integral number). Numbers may be entered only in form of:
+
+SIIII.FFFFF
+
+where S is optional negative sign, IIII is integral part, '.' serves as
+separator for fractional part and FFFF stands for fractional part. Both '.' and
+fractional part are optional for fields where floats are expected. Scientific
+notation of floats is not supported right now.
+
+Examples:
+123.45
+-1234
+0.1
+
+Not valid numbers:
+.1 (omitting 0 is not allowed)
+12345- (negative sign must be written left of number)
+
+Arrays
+------
+Arrays are kind of ordered list of data items which itself may be arays too
+(creating array of array of items). Level of nesting is not limited in any way.
+Items of array not need to be of same type thus it is possible to have array
+which' first item is float, second is string, third is struct (see below) and
+fourth is next array. Arrays are written ad comma-separated list of items
+enclosed in square brackets. Comma after last item of array is not allowed.
+Arrays are indexed starting from 0.
+
+Examples:
+[ 1, 2, 3, 4 ]
+[ 1, 2.0, "three", [ 0, 0, 0, 0] ]
+
+Structures
+----------
+Structures are similar to arrays in fact that they contain more members but
+unlike arrays their data items are not ordered, but named. Members of structure
+can be of any type, including structure. Level of nesting is not limited in any
+way. Each member is defined as "name" : value pair. Double-quotes around member
+name are mandatory. Value may be any type of number, string, array or struct.
+Structure is defined as comma-separated list of member definitions enclosed in
+curly braces. No comma can be written after last member. Member names are always
+case-sensitive thus "Name" is different member than "name".
+
+Examples:
+{ "first" : 1, "second" : 2.0, "third", "three", "fourth" : { "array" : [ 0, 0,
+0, 0 ] } }
+
+General
+-------
+Whitespaces are not required at all but in case where file format is hand-edited
+is good practice to increase indentation level whenever starting new nested
+array and/or struct and decrease indentation level whenever ending it. Newlines
+outside of strings are completely ignored (except of parse error messages).
+
+MATERIALS FORMAT
+================
+Materials format is used to define material properties for use in calculations.
+Material definition file is structure containing one single member "materials"
+which itself is an array of material definitions.
+
+Each material definition is structure containing following members:
+{
+	"name" : material name as used in building definition - case sensitive
+	"altname" : alternative material name - currently unused
+	"resistance" : thermal resistance of material in m.K/W
+	"capacity" : thermal capacity of material in kJ/kg.K
+	"density" : material density in kg/m^3
+}
+
+Definition of capacity and density is optional for most of time but allows for
+some additional computations if entered. ThermalLoss s provided with some
+standard material definition library.

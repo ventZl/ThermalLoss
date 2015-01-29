@@ -153,7 +153,7 @@ typedef std::vector<WindowDef *> WindowDefVector;
 
 class WindowDef {
 public:
-	WindowDef(): m_width(-1), m_height(-1) {}
+	WindowDef(): m_width(0), m_height(0) {}
 
 	RO_PROPERTY(double, resistance);	// conductivity of layer of defined  width and defined material type 
 	RO_PROPERTY(double, area);
@@ -165,7 +165,7 @@ public:
 
 public:
 	void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses);
-	bool isSizeSet() const { if (m_width != -1.0 && m_height != -1.0) return true; return false; }
+	bool isSizeSet() const { if (m_width != 0 && m_height != 0) return true; return false; }
 	void addHole(WindowDef * winDef) { m_holes.push_back(winDef); }
 	void addLayer(WindowDef * winDef) { m_layers.push_back(winDef); }
 
