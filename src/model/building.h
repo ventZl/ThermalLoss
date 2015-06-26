@@ -2,6 +2,7 @@
 #define __SRC_MODEL_BUILDING_H__
 
 #include <vector>
+#include <string>
 #include <json/json.h>
 #include <stdexcept>
 #include "material.h"
@@ -187,7 +188,7 @@ public:
 	JSON_ARRAY_PROXY(RoomWallsProxy, Room, m_walls, Wall);
 	JSON_ARRAY_PROXY(PointRefsProxy, Room, m_points, JSON::Simple::Int);
 	
-	Room(): json_walls(this), json_points(this), json_height(&this->m_height), m_height(0), json_internalTemperature(&this->m_internalTemperature), m_internalTemperature(-1), json_level(&this->m_level), m_level(0), m_building(NULL) { addProperties(); }
+	Room(): json_walls(this), json_points(this), json_height(&this->m_height), m_height(0), json_internalTemperature(&this->m_internalTemperature), m_internalTemperature(-1), json_level(&this->m_level), json_name(&this->m_name), m_level(0), m_building(NULL), m_id(0) { addProperties(); }
 	virtual bool validate(std::string & message) const;
 //	Building * building() const { return m_building; }
 	float height() const { return m_height; }
@@ -200,11 +201,16 @@ public:
 
 	unsigned level() const { return m_level; }
 
+	const std::string & name() const { return m_name; }
+
 	float internalTemperature() const { return m_internalTemperature; }
+
+	unsigned id() const { return m_id; }
+	void id(unsigned id) { m_id = id; }
 
 protected:
 	void addProperties() {
-		addProperty("walls", &json_walls); addProperty("height", &json_height); addProperty("corners", &json_points); addProperty("level", &json_level); addProperty("temperature", &json_internalTemperature);
+		addProperty("walls", &json_walls); addProperty("height", &json_height); addProperty("corners", &json_points); addProperty("level", &json_level); addProperty("temperature", &json_internalTemperature); addProperty("name", &json_name);
 	}
 
 	RoomWallsProxy json_walls;
@@ -222,7 +228,12 @@ protected:
 	JSON::Simple::Int json_level;
 	int m_level;
 
+	JSON::Simple::String json_name;
+	std::string m_name;
+
 	Building * m_building;
+
+	unsigned m_id;
 };
 
 /** Ordered list of room definitions. */

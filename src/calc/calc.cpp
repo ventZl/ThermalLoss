@@ -11,7 +11,7 @@ void Calc::Wall::calculate(const Model::MaterialLibrary & materials, const Model
 	double surface = room()->height() * this->length();
 	//	printf("Room of this wall is %p\n", room());
 //	printf("Wall height of %.2fm and length of %.2fm has surface of %.2fm^2\n", room()->height(), length(), surface);
-	double resistance = m_wallType->resistance(materials) + (0.13 * 2); // 0.13 is resistance of thin air layer near wall
+	double resistance = m_wallType->resistance(materials) + (0.13 * 1); // 0.13 is resistance of thin air layer near wall
 //	printf("Wall construction resistance is %.3f m^2.K/W\n", resistance);
 	
 	double windowSurface = 0;
@@ -161,7 +161,7 @@ void Calc::WindowDef::calculate(const Model::MaterialLibrary & materials, const 
 		sum_area += compute_area;
 		sum_resistance += compute_area * (m_depth / material->conductivity());
 		m_resistance = sum_resistance / sum_area;
-		m_resistance += 2*0.13;
+		m_resistance += 1 * 0.13;
 //		if (m_name != "") printf("Window definition '%s' U = %.3f W/m^2.K\n", m_name.c_str(), 1.0 / m_resistance);
 
 	} 

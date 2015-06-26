@@ -26,12 +26,29 @@ protected:
 	RO_PROPERTY(float, groundTemp);
 };
 
-class Losses: public JSON::Struct {
+class RoomLosses: public JSON::Struct {
 public:
-	Losses(): JSON_ATTACH(wallLosses), JSON_ATTACH(ceilLosses), JSON_ATTACH(windowLosses), JSON_ATTACH(floorLosses), JSON_ATTACH(area), JSON_ATTACH(energyRequired), JSON_ATTACH(relativeLosses) { addProperties(); m_wallLosses = 0; m_ceilLosses = 0; m_windowLosses = 0; m_floorLosses = 0; m_area = 0; m_relativeLosses = 0; }
+	Losses(): JSON_ATTACH(name), JSON_ATTACH(losses), m_losses(0) {	addProperties(); }
 
 protected:
-	void addProperties() { JSON_PROPERTY(wallLosses); JSON_PROPERTY(ceilLosses); JSON_PROPERTY(windowLosses); JSON_PROPERTY(floorLosses); JSON_PROPERTY(area); JSON_PROPERTY(energyRequired); JSON_PROPERTY(relativeLosses); }
+	void addProperties() { JSON_PROPERTY(name); JSON_PROPERTY(losses); }
+
+	JSON::Simple::String json_name;
+	std::string m_name;
+
+	JSON::Simple::Float json_losses;
+	RO_PROPERTY(float, losses);
+
+public:
+	void addLoss(double loss) { m_losses += loss; }
+};
+
+class Losses: public JSON::Struct {
+public:
+	Losses(): JSON_ATTACH(wallLosses), JSON_ATTACH(ceilLosses), JSON_ATTACH(windowLosses), JSON_ATTACH(floorLosses), JSON_ATTACH(area), JSON_ATTACH(energyRequired), JSON_ATTACH(relativeLosses), JSON_ATTACH(totalLosses) { addProperties(); m_wallLosses = 0; m_ceilLosses = 0; m_windowLosses = 0; m_floorLosses = 0; m_area = 0; m_relativeLosses = 0; m_totalLosses = 0; }
+
+protected:
+	void addProperties() { JSON_PROPERTY(wallLosses); JSON_PROPERTY(ceilLosses); JSON_PROPERTY(windowLosses); JSON_PROPERTY(floorLosses); JSON_PROPERTY(area); JSON_PROPERTY(energyRequired); JSON_PROPERTY(relativeLosses), JSON_PROPERTY(totalLosses); }
 
 	JSON::Simple::Float json_wallLosses;
 	JSON::Simple::Float json_ceilLosses;
@@ -40,6 +57,7 @@ protected:
 	JSON::Simple::Float json_area;
 	JSON::Simple::Float json_energyRequired;
 	JSON::Simple::Float json_relativeLosses;
+	JSON::Simple::Float json_totalLosses;
 	
 	RO_PROPERTY(float, wallLosses);
 	RO_PROPERTY(float, ceilLosses);
@@ -48,13 +66,14 @@ protected:
 	RO_PROPERTY(float, area);
 	PROPERTY(float, energyRequired);
 	RO_PROPERTY(float, relativeLosses);
+	RO_PROPERTY(float, totalLosses);
 
 public:
-	void addWallLoss(double loss) { m_wallLosses += loss; }
-	void addCeilLoss(double loss) { m_ceilLosses += loss; }
-	void addWindowLoss(double loss) { m_windowLosses += loss; }
-	void addFloorLoss(double loss) { m_floorLosses += loss; }
-	void addArea(double area) { m_area += area; }
+	void addWallLoss(unsigned room, double loss) { m_wallLosses += loss; m_totalLosses += loss; }
+	void addCeilLoss(unsigned room, double loss) { m_ceilLosses += loss; m_totalLosses += loss; }
+	void addWindowLoss(unsigned room, double loss) { m_windowLosses += loss; m_totalLosses += loss; }
+	void addFloorLoss(unsigned room, double loss) { m_floorLosses += loss; m_totalLosses += loss; }
+	void addArea(<D-Space>double area) { m_area += area; }
 	void addRelativeLoss(double loss) { m_relativeLosses += loss; }
 };
 
