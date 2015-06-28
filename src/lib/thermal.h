@@ -14,18 +14,17 @@ public:
 	virtual ~Cell() {}
 
 	// Get representation of temperature of cell (value in Kelvins)
-	virtual double temperature() const = 0;
-
-	// Add / remove heat from/to cell (value in Jouls)
-	virtual void heat(double amount) = 0;
+	virtual double temperature(double energy) const = 0;
+	const std::vector<Path &> paths() const { return m_paths; }
 
 protected:
 	void addPath(Path & path) { m_paths.push_back(path); }
 	void removePath(Path & path) { std::vector<Path &>::iterator it = m_paths.find(path); if (it != m_paths.end()) m_paths.erase(it); }
 
 	std::vector<Path &> m_paths;
-};
 
+	friend class Path;
+};
 
 class Path {
 public:
@@ -34,10 +33,7 @@ public:
 	virtual ~Path() { m_cell1.removePath(this); m_cell2.removePath(this); }
 
 	// Transport given amount of heat between connected cells
-	virtual void transport(double timeslice);
-
-	virtual void commit() = 0;
-	virtual void rollback() = 0;
+	virtual double transport(double timeslice) = 0;
 
 protected:
 	Cell & cell1() { return m_cell1; }
@@ -47,62 +43,34 @@ protected:
 	Cell & m_cell1, & m_cell2;
 };
 
-class ThermalMass;
-
-class MassInteractor {
-	virtual void heat(ThermalMass * mass, double heat) = 0;
-	virtual void commit(ThermalMass * mass) = 0;
-	virtual void rollback(ThermalMass * mass) = 0;
-};
-
-class ThermalMass: public Cell {
+class Mass: public Cell {
 public:
-	ThermalMass(double volume, double density double capacity, MassInteractor * interactor): m_volume(volume), m_density(volume), m_capacity(capacity), m_interactor(interactor) {}
+	Mass(double volume, double density double capacity): m_volume(volume), m_density(volume), m_capacity(capacity) {}
 
-	virtual double temperature() const = 0;
-	virtual void heat(double heat) { m_interactor->heat(this, heat); }
-	virtual void commit() { m_interactor->commit(this); }
-	virtual void rollback() { m_interactor->rollback(this); }
-
-	virtual double oldHeat() const = 0;
-	virtual void changeHeat(double delta) = 0;
-	virtual void commitHeat() = 0;
-	virtual void rollbackHeat() = 0;
+	virtual double temperature(double energy) const;
 
 protected:
 	double m_volume;
 	double m_density;
 	double m_capacity;
-	MassInteractor * m_interactor;
 };
 
-class ThermalBarrier;
-
-class BarrierInteractor {
-
-};
-
-class ThermalBarrier: public Path {
+class Barrier: public Path {
 public:
-	ThermalBarrier(double surface, double width, double conductivity, BarrierInteractor * interactor): m_surface(surface), m_width(width), m_conductivity(conductivity) {}
+	Barrier(double surface, double width, double conductivity, Cell & cell1, Cell & cell2): Path(cell1, cell2), m_surface(surface), m_width(width) {}
 
 	/* Return true if rate of change of thermal flow is within limits */
-	virtual bool transport(double timeslice); // { m_interactor->transport(timeslice); }
-	virtual void commit() { m_interactor->commit(this); }
-	virtual void rollback() { m_interactor->rollback(this); }
-
-	virtual void commitFlow() = 0;
-	virtual void rollbackFlow() = 0;
+	virtual double transport(double timeslice);
 
 protected:
-	BarrierInteractor * m_interactor;
 	double m_surface;
 	double m_width;
 	double m_conductivity;
 };
 
-class Room: public ThermalMass {
-	
+class Room: public Mass {
+public:
+	Room(double width, double depth, double height): Mass(width * depth * height, AIR_DENSITY, AIR_CAPACITY) {}
 };
 
 }

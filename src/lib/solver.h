@@ -10,6 +10,15 @@ namespace Thermal {
 
 namespace Solver {
 
+class Instant {
+public:
+	double energy(Thermal::Cell & cell) const;
+	void energy(Thermal::Cell & cell, double energy);
+
+protected:
+	std::map<Thermal::Cell &, double> m_energy;
+};
+
 class System {
 public:
 	System() {}
