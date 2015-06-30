@@ -28,7 +28,7 @@ protected:
 
 class RoomLosses: public JSON::Struct {
 public:
-	Losses(): JSON_ATTACH(name), JSON_ATTACH(losses), m_losses(0) {	addProperties(); }
+	RoomLosses(): JSON_ATTACH(name), JSON_ATTACH(losses), m_losses(0) {	addProperties(); }
 
 protected:
 	void addProperties() { JSON_PROPERTY(name); JSON_PROPERTY(losses); }
@@ -73,7 +73,7 @@ public:
 	void addCeilLoss(unsigned room, double loss) { m_ceilLosses += loss; m_totalLosses += loss; }
 	void addWindowLoss(unsigned room, double loss) { m_windowLosses += loss; m_totalLosses += loss; }
 	void addFloorLoss(unsigned room, double loss) { m_floorLosses += loss; m_totalLosses += loss; }
-	void addArea(<D-Space>double area) { m_area += area; }
+	void addArea(double area) { m_area += area; }
 	void addRelativeLoss(double loss) { m_relativeLosses += loss; }
 };
 

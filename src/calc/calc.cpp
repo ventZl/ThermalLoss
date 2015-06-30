@@ -37,7 +37,7 @@ void Calc::Wall::calculate(const Model::MaterialLibrary & materials, const Model
 //	printf("Thermal dissipation power is %.3f W\n", power);
 
 //	printf("Adding wall loss of %.4f (%f, %f, %f)\n", power, flow, resistance, surface);
-	losses.addWallLoss(power);
+	losses.addWallLoss(0, power);
 	losses.addRelativeLoss(surface / resistance);
 	return;
 }
@@ -73,7 +73,7 @@ void Calc::Room::calculate(const Model::MaterialLibrary & materials, const Model
 		double flow = (calcTemp(parameters) - parameters.groundTemp()) / floorResistance;
 //		printf("Thermal difference is %.2f deg. C (%.2f, %.2f)\n", calcTemp(parameters) - parameters.groundTemp(), calcTemp(parameters), parameters.groundTemp());
 		double power = area * flow;
-		losses.addFloorLoss(power);
+		losses.addFloorLoss(0, power);
 		losses.addRelativeLoss(area / floorResistance);
 	}
 	if (m_topMost) {
@@ -82,7 +82,7 @@ void Calc::Room::calculate(const Model::MaterialLibrary & materials, const Model
 		double flow = (calcTemp(parameters) - parameters.outTemp()) / ceilingResistance;
 //		printf("Thermal difference is %.2f deg. C\n", calcTemp(parameters) - parameters.outTemp());
 		double power = area * flow;
-		losses.addCeilLoss(power);
+		losses.addCeilLoss(0, power);
 		losses.addRelativeLoss(area / ceilingResistance);
 	}
 //	printf("adding loss area of %f\n", area);
@@ -98,7 +98,7 @@ void Calc::Room::addVertex(Geometry::Vertex3D * vertex) {
 void Calc::WindowBySpecs::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const {
 	double flow = (wall()->room()->calcTemp(parameters) - parameters.outTemp()) / m_resistance;
 	double power = m_area * flow;
-	losses.addWindowLoss(power);
+	losses.addWindowLoss(0, power);
 	losses.addRelativeLoss(m_area / m_resistance);
 	return;
 }
@@ -107,7 +107,7 @@ void Calc::WindowByDef::calculate(const Model::MaterialLibrary & materials, cons
 	Calc::WindowDef * winDef = wall()->room()->calc()->windowDef(m_name);
 	double flow = (wall()->room()->calcTemp(parameters) - parameters.outTemp()) / winDef->resistance();
 	double power = winDef->area() * flow;
-	losses.addWindowLoss(power);
+	losses.addWindowLoss(0, power);
 	losses.addRelativeLoss(winDef->area() / winDef->resistance());
 	return;
 }

@@ -3,6 +3,10 @@
 
 #include <vector>
 
+namespace Solver {
+	class System;
+}
+
 namespace Thermal {
 
 class Path;
@@ -11,17 +15,21 @@ class Path;
 // in certain region of space 
 class Cell {
 public:
-	virtual ~Cell() {}
+	Cell(unsigned key): m_key(key) {};
+	virtual ~Cell();
 
 	// Get representation of temperature of cell (value in Kelvins)
 	virtual double temperature(double energy) const = 0;
-	const std::vector<Path &> paths() const { return m_paths; }
+	virtual double energy(double temperature) const = 0;
+	const std::vector<Path *> paths() const { return m_paths; }
+	unsigned key() const { return m_key; }
 
 protected:
-	void addPath(Path & path) { m_paths.push_back(path); }
-	void removePath(Path & path) { std::vector<Path &>::iterator it = m_paths.find(path); if (it != m_paths.end()) m_paths.erase(it); }
+	void addPath(Path * path) { m_paths.push_back(path); }
+	void removePath(Path * path);
 
-	std::vector<Path &> m_paths;
+	std::vector<Path *> m_paths;
+	unsigned m_key;
 
 	friend class Path;
 };
@@ -29,25 +37,27 @@ protected:
 class Path {
 public:
 	// Create heat transport path from cell1 to cell2
-	Path(Cell & cell1, Cell & cell2): m_cell1(cell1), m_cell2(cell2) { m_cell1.addPath(this); m_cell2.addPath(this); }
-	virtual ~Path() { m_cell1.removePath(this); m_cell2.removePath(this); }
+	Path(unsigned key, Cell * cell1, Cell * cell2): m_key(key), m_cell1(cell1), m_cell2(cell2) { m_cell1->addPath(this); m_cell2->addPath(this); }
+	virtual ~Path() { m_cell1->removePath(this); m_cell2->removePath(this); }
 
 	// Transport given amount of heat between connected cells
-	virtual double transport(double timeslice) = 0;
+	virtual double transport(Solver::System * system, double timeslice) = 0;
+	unsigned key() const { return m_key; }
+
+	Cell * cell1() { return m_cell1; }
+	Cell * cell2() { return m_cell2; }
 
 protected:
-	Cell & cell1() { return m_cell1; }
-	Cell & cell2() { return m_cell2; }
-
-protected:
-	Cell & m_cell1, & m_cell2;
+	double m_key;
+	Cell * m_cell1, * m_cell2;
 };
 
 class Mass: public Cell {
 public:
-	Mass(double volume, double density double capacity): m_volume(volume), m_density(volume), m_capacity(capacity) {}
+	Mass(unsigned key, double volume, double density, double capacity): Cell(key), m_volume(volume), m_density(volume), m_capacity(capacity) {}
 
 	virtual double temperature(double energy) const;
+	virtual double energy(double temperature) const;
 
 protected:
 	double m_volume;
@@ -57,10 +67,10 @@ protected:
 
 class Barrier: public Path {
 public:
-	Barrier(double surface, double width, double conductivity, Cell & cell1, Cell & cell2): Path(cell1, cell2), m_surface(surface), m_width(width) {}
+	Barrier(unsigned key, double surface, double width, double conductivity, Cell * cell1, Cell * cell2): Path(key, cell1, cell2), m_surface(surface), m_width(width) {}
 
 	/* Return true if rate of change of thermal flow is within limits */
-	virtual double transport(double timeslice);
+	virtual double transport(Solver::System * system, double timeslice);
 
 protected:
 	double m_surface;
@@ -68,9 +78,12 @@ protected:
 	double m_conductivity;
 };
 
+#define AIR_DENSITY (1.2*0.001)
+#define AIR_CAPACITY 1.005
+
 class Room: public Mass {
 public:
-	Room(double width, double depth, double height): Mass(width * depth * height, AIR_DENSITY, AIR_CAPACITY) {}
+	Room(unsigned key, double width, double depth, double height): Mass(key, width * depth * height, AIR_DENSITY, AIR_CAPACITY) {}
 };
 
 }

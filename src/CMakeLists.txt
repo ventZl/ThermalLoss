@@ -3,6 +3,7 @@ add_subdirectory(model)
 add_subdirectory(calc)
 add_subdirectory(geom)
 add_subdirectory(lib)
+add_subdirectory(app)
 
 include_directories(${CMAKE_SRC_DIR} ${CMAKE_SRC_DIR}/src/)
 

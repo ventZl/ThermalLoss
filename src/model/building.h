@@ -188,7 +188,7 @@ public:
 	JSON_ARRAY_PROXY(RoomWallsProxy, Room, m_walls, Wall);
 	JSON_ARRAY_PROXY(PointRefsProxy, Room, m_points, JSON::Simple::Int);
 	
-	Room(): json_walls(this), json_points(this), json_height(&this->m_height), m_height(0), json_internalTemperature(&this->m_internalTemperature), m_internalTemperature(-1), json_level(&this->m_level), json_name(&this->m_name), m_level(0), m_building(NULL), m_id(0) { addProperties(); }
+	Room(): json_walls(this), json_points(this), json_height(&this->m_height), m_height(0), json_internalTemperature(&this->m_internalTemperature), m_internalTemperature(-1), json_level(&this->m_level), m_level(0), json_name(&this->m_name), m_building(NULL), m_id(0) { addProperties(); }
 	virtual bool validate(std::string & message) const;
 //	Building * building() const { return m_building; }
 	float height() const { return m_height; }
