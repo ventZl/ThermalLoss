@@ -27,14 +27,72 @@ protected:
 	unsigned m_lineNo;
 };
 
+typedef std::multimap<std::string, JSON::Reference *> FwdReferenceMap;
+typedef std::map<std::string, JSON::Node *> RevReferenceMap;
+
+class ReferenceManager {
+public:
+	static void addReference(const std::string & id, JSON::Reference * __reference);
+	static void addBackReference(const std::string & id, JSON::Node * __node);
+
+protected:
+	static FwdReferenceMap s_forwardReference; // names and references waiting for their pointers
+	static RevReferenceMap s_backReference; // names and nodes holding them
+};
+
+FwdReferenceMap ReferenceManager::s_forwardReference;
+RevReferenceMap ReferenceManager::s_backReference;
+
+
+void ReferenceManager::addReference(const std::string & id, JSON::Reference * __reference) {
+	ReferenceManager::s_forwardReference.insert(FwdReferenceMap::value_type(id, __reference));
+	RevReferenceMap::iterator it = ReferenceManager::s_backReference.find(id);
+	if (it != ReferenceManager::s_backReference.end())
+		__reference->setValue(it->second);
+
+	return;
+}
+
+void ReferenceManager::addBackReference(const std::string & id, JSON::Node * __node) {
+	ReferenceManager::s_backReference.insert(RevReferenceMap::value_type(id, __node));
+	FwdReferenceMap::iterator it = ReferenceManager::s_forwardReference.find(id);
+	while (it != ReferenceManager::s_forwardReference.end() && it->first == id) {
+		it->second->setValue(__node);
+	}
+	return;
+}
+
 #define NODE_CAST_TO(type, obj)	(*(dynamic_cast<const type *>((obj))))
 
 static bool storeStruct(std::ostream & output, const std::string & name, const JSON::Struct & _struct);
 static bool storeArray(std::ostream & output, const std::string & name, const JSON::Array & _array);
 static bool storeString(std::ostream & output, const std::string & name, const JSON::String & _string);
 static bool storeNumber(std::ostream & output, const std::string & name, const JSON::Number & _number);
+static bool storeReference(std::ostream & output, const std::string & name, const JSON::Reference & _reference);
 
 #define WRITE_NAME_IF_NOT_EMPTY(name, output) if (name != "") output << " \"" << name << "\" :"
+
+typedef bool (*traverseCallback)(void * cbData, JSON::Node & __traverseNode);
+
+/*
+static bool traverseStruct(JSON::Struct & __struct, void * cbData, traverseCallback cbFunc) {
+	
+}*/
+
+/** Traverse JSON tree.
+ * @return true if callback ordered to stop traversal somewhere.
+ */
+/*
+static bool traverse(JSON::Node & root, void * cbData, traverseCallback cbFunc) {
+	switch(root.getType()) {
+		case JSON::STRUCT: if (!traverseStruct(NODE_CAST_TO(JSON::Struct, root), cbData, cbFunc)) return true; break;
+		case JSON::ARRAY: if (!traverseArray(NODE_CAST_TO(JSON::Array, root), cbData, cbFunc)) return true; break;
+// these below should probably directly fire cbFunc?
+		case JSON::STRING: if (!traverseStruct(NODE_CAST_TO(JSON::String, root), cbData, cbFunc)) return true; break;
+		case JSON::NUMBER: if (!traverseStruct(NODE_CAST_TO(JSON::Number, root), cbData, cbFunc)) return true; break;
+		case JSON::REFERENCE: if (!traverseReference(NODE_CAST_TO(JSON::Reference, root), cbData, cbFunc)) return true; break;
+	}
+}*/
 
 static bool storeStruct(std::ostream & output, const std::string & name, const JSON::Struct & __struct) {
 	WRITE_NAME_IF_NOT_EMPTY(name, output);
@@ -46,6 +104,7 @@ static bool storeStruct(std::ostream & output, const std::string & name, const J
 			case JSON::ARRAY: if (!storeArray(output, it->first, NODE_CAST_TO(JSON::Array, it->second))) return false; break;
 			case JSON::STRING: if (!storeString(output, it->first, NODE_CAST_TO(JSON::String, it->second))) return false; break;
 			case JSON::NUMBER: if (!storeNumber(output, it->first, NODE_CAST_TO(JSON::Number, it->second))) return false; break;
+			case JSON::REFERENCE: if (!storeReference(output, it->first, NODE_CAST_TO(JSON::Reference, it->second))) return false; break;
 		}
 	}
 	output << " }";
@@ -65,6 +124,7 @@ static bool storeArray(std::ostream & output, const std::string & name, const JS
 			case JSON::ARRAY: if (!storeArray(output, "", NODE_CAST_TO(JSON::Array, (*it)))) return false; break;
 			case JSON::STRING: if (!storeString(output, "", NODE_CAST_TO(JSON::String, *it))) return false; break;
 			case JSON::NUMBER: if (!storeNumber(output, "", NODE_CAST_TO(JSON::Number, *it))) return false; break;
+			case JSON::REFERENCE: if (!storeReference(output, "", NODE_CAST_TO(JSON::Reference, *it))) return false; break;
 		}
 	}
 	output << " ]";
@@ -85,6 +145,16 @@ static bool storeNumber(std::ostream & output, const std::string & name, const J
 	output.flush();
 	return true;
 }
+
+static bool storeReference(std::ostream & output, const std::string & name, const JSON::Reference & _reference) {
+	WRITE_NAME_IF_NOT_EMPTY(name, output);
+	char tmpPtrStr[10];
+	snprintf(tmpPtrStr, sizeof(tmpPtrStr), "%p", (void *) _reference.getValue());
+	output << " @" << tmpPtrStr;
+	output.flush();
+	return true;
+}
+
 
 JSON::Node * JSON::Struct::findProperty(const std::string & name) {
 	std::map<std::string, JSON::Node *>::iterator it = this->properties.find(name);
@@ -109,6 +179,10 @@ JSON::String * JSON::Struct::createString(const std::string & name) {
 	return dynamic_cast<JSON::String *>(this->findProperty(name));
 }
 
+JSON::Reference * JSON::Struct::createReference(const std::string & name) {
+	return dynamic_cast<JSON::Reference *>(this->findProperty(name));
+}
+
 JSON::Array * JSON::Array::createArray() {
 	return dynamic_cast<JSON::Array *>(this->createItem());
 }
@@ -123,6 +197,10 @@ JSON::Number * JSON::Array::createNumber() {
 
 JSON::String * JSON::Array::createString() {
 	return dynamic_cast<JSON::String *>(this->createItem());
+}
+
+JSON::Reference * JSON::Array::createReference() {
+	return dynamic_cast<JSON::Reference *>(this->createItem());
 }
 
 bool JSON::store(const std::string & filename, const JSON::Struct * root) {
@@ -190,6 +268,7 @@ void parseArray(parseIstream & input, JSON::Array & __array);
 void parseString(parseIstream & input, JSON::String & __string);
 void parseNumber(parseIstream & input, JSON::Number & __number);
 void parseStruct(parseIstream & input, JSON::Struct & __struct);
+void parseReference(parseIstream & input, JSON::Reference & __reference);
 
 void parseArray(parseIstream & input, JSON::Array & __array) {
 	char c;
@@ -202,7 +281,12 @@ void parseArray(parseIstream & input, JSON::Array & __array) {
 //			printf("> %c >", c);
 			if (c == ']') break;				// for allowing of empty arrays
 			input.unget();
-			if (c == '{') {
+			if (c == '@') {
+				JSON::Reference * new_reference = __array.createReference();
+				if (new_reference == NULL) parseError(input, "Schema doesn't allow reference to be item of this array");
+				parseReference(input, *new_reference);
+
+			} else if (c == '{') {
 //				printf("\nParsing struct item...\n"); 
 				JSON::Struct * new_struct = __array.createStruct();
 				if (new_struct == NULL) parseError(input, "Schema doesn't allow struct to be item of this array");
@@ -238,6 +322,20 @@ void parseArray(parseIstream & input, JSON::Array & __array) {
 	} else parseError(input, "Internal error: expected array record, input contains something else");
 	std::string message;
 	if (!__array.validate(message)) { parseError(input, message); }
+}
+
+void parseReference(parseIstream & input, JSON::Reference & __reference) {
+	char c;
+	std::string value;
+	c = parseWhitespace(input);
+	bool isWhiteSpace = false;
+	do {
+		input.get(c);
+		if (c == ' ' || c == ',' || c == ']' || c == '}') isWhiteSpace = true;
+		if (!isWhiteSpace) value += c;
+	} while (!isWhiteSpace);
+	ReferenceManager::addReference(value, &__reference);
+	return;
 }
 
 void parseString(parseIstream & input, JSON::String & __string) {

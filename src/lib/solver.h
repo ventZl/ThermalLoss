@@ -9,6 +9,10 @@ namespace Thermal {
 	class Path;
 }
 
+namespace Persistent {
+	class System;
+}
+
 namespace Solver {
 
 class Report;
@@ -26,6 +30,9 @@ class System {
 public:
 	System() {}
 	virtual ~System();
+
+	virtual System * clone() const = 0;
+
 	unsigned addCell(Thermal::Cell * cell);
 	unsigned addPath(Thermal::Path * path);
 	Thermal::Cell * cell(unsigned id) { return m_cells[id]; }
@@ -58,6 +65,7 @@ class StaticDissipation: public System {
 public:
 	StaticDissipation() {}
 
+	virtual System * clone();
 	virtual bool solve(Report & report);
 };
 

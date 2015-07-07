@@ -73,5 +73,7 @@ namespace Persistent {
 
 		SystemMassProxy json_masses;
 		MassVector m_masses;
+
+		friend class Solver::System;
 	};
 }

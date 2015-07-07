@@ -1,6 +1,7 @@
 #include "solver.h"
 #include "thermal.h"
 #include "report.h"
+#include "persistent.h"
 
 unsigned Solver::System::addCell(Thermal::Cell * cell) { 
 	unsigned cellId = m_cells.size(); 
@@ -22,6 +23,16 @@ bool Solver::System::verify() {
 		if ((*it)->paths().size() == 0) return false;
 	}
 	return true;
+}
+
+Solver::System::System(const Persistent::System & other) {
+	for (Persistent::MassVector::const_iterator it = other.m_masses.begin(); it != other.m_masses.end(); ++it) {
+		addCell((*it)->clone());
+	}
+
+	for (Persistent::BarrierVector::const_iterator it = other.m_barriers.begin(); it != other.m_barriers.end(); ++it) {
+		addPath((*it)->clone());
+	}
 }
 
 bool Solver::StaticDissipation::solve(Report & report) {

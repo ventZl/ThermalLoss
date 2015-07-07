@@ -30,13 +30,14 @@
 	friend class proxy_name
 
 namespace JSON {
-	typedef enum { STRING, NUMBER, STRUCT, ARRAY } Type;
+	typedef enum { STRING, NUMBER, STRUCT, ARRAY, REFERENCE } Type;
 	
 	class Node;
 	class String;
 	class Struct;
 	class Array;
 	class Number;
+	class Reference;
 
 	class ValidStatus {
 	public:
@@ -69,14 +70,9 @@ namespace JSON {
 	public:
 		Node() {}
 		virtual ~Node() {}
-/*		virtual Array * createArray(const std::string & name) { return NULL; }
-		virtual Struct * createStruct(const std::string & name) { return NULL; }
-		virtual String * createString(const std::string & name) { return NULL; }
-		virtual Number * createNumber(const std::string & name) { return NULL; }*/
 		virtual Type getType() const = 0;
 		virtual bool validate(std::string & message) const { return true; }
 		
-	protected:
 //		std::string name;
 	};
 	
@@ -93,6 +89,14 @@ namespace JSON {
 		unsigned position;
 		friend class Struct;
 		friend class Array;
+	};
+
+	class Reference: public Node {
+	public:
+		Reference(): Node() {}
+		virtual Type getType() const { return REFERENCE; }
+		virtual void setValue(JSON::Node * target) = 0;
+	    virtual JSON::Node * getValue() const = 0;	
 	};
 	
 	class String: public Node {
@@ -124,6 +128,7 @@ namespace JSON {
 		virtual Struct * createStruct();
 		virtual String * createString();
 		virtual Number * createNumber();
+		virtual Reference * createReference();
 
 		virtual Node * createItem() = 0;
 		virtual const Node * getItemAt(unsigned offset) const = 0;
@@ -148,6 +153,7 @@ namespace JSON {
 		virtual Struct * createStruct(const std::string & name);
 		virtual String * createString(const std::string & name);
 		virtual Number * createNumber(const std::string & name);
+		virtual Reference * createReference(const std::string & name);
 				
 	protected:
 		void addProperty(const std::string & name, JSON::Node * nd) { properties.insert(std::pair<std::string, JSON::Node *>(name, nd)); }
@@ -156,6 +162,17 @@ namespace JSON {
 	};
 	
 	namespace Simple {
+		class Reference: public JSON::Reference {
+		public:
+			Reference(JSON::Node ** target): JSON::Reference(), m_target(target) {}
+			virtual JSON::Node * getValue() const { if (m_target != NULL) return *m_target; return NULL; }
+			virtual void setValue(JSON::Node * value) { if (m_target) *(m_target) = value; }
+
+		protected:
+			JSON::Node ** m_target;
+		};
+
+
 		class Int: public JSON::Number {
 		public:
 			Int(): Number(), m_holder(new int), m_buffer(m_holder.get()) {}
@@ -222,3 +239,4 @@ namespace JSON {
 }
 
 #endif
+

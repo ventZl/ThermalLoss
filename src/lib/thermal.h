@@ -24,6 +24,8 @@ protected:
 public:
 	virtual ~Cell();
 
+	virtual Cell * clone() const = 0 ; //{ return new Cell(this); }
+
 	// Get representation of temperature of cell (value in Kelvins)
 	virtual double temperature(double energy) const = 0;
 	virtual double energy(double temperature) const = 0;
@@ -44,6 +46,7 @@ class Path: public Namable::Named {
 public:
 	// Create heat transport path from cell1 to cell2
 	Path(unsigned key, Cell * cell1, Cell * cell2): Named(key), m_cell1(cell1), m_cell2(cell2) { m_cell1->addPath(this); m_cell2->addPath(this); }
+	virtual Path * clone() const = 0; //{ return new Path(this); }
 
 protected:
 	Path(): m_cell1(NULL), m_cell2(NULL) {}
@@ -74,6 +77,7 @@ protected:
 	Mass();
 
 public:
+	virtual Cell * clone() const { return new Mass(*this); }
 	virtual double temperature(double energy) const;
 	virtual double energy(double temperature) const;
 
@@ -91,6 +95,7 @@ protected:
 	Barrier() {}
 
 public:
+	virtual Path * clone() const { return new Barrier(*this); }
 	/* Return true if rate of change of thermal flow is within limits */
 	virtual double transport(Solver::System * system, double timeslice);
 
@@ -106,6 +111,8 @@ protected:
 class Room: public Mass {
 public:
 	Room(unsigned key, double width, double depth, double height): Mass(key, width * depth * height, AIR_DENSITY, AIR_CAPACITY) {}
+	virtual Cell * clone() const { return new Room(*this); }
+
 };
 
 }
