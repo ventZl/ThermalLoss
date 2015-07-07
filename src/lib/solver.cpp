@@ -1,7 +1,24 @@
+#include <assert.h>
 #include "solver.h"
 #include "thermal.h"
 #include "report.h"
 #include "persistent.h"
+
+double Solver::Instant::energy(unsigned cell) const {
+	std::vector<double>::const_iterator it = m_energy.begin() + cell;
+	assert(it != m_energy.end());
+	return *it;
+}
+
+void Solver::Instant::energy(unsigned cell, double energy) {
+	assert(energy >= 0.0);
+	m_energy[cell] = energy;
+}
+
+Solver::System::~System() {
+	for (std::vector<Thermal::Path *>::iterator it = m_paths.begin(); it != m_paths.end(); ++it) delete *it;
+	for (std::vector<Thermal::Cell *>::iterator it = m_cells.begin(); it != m_cells.end(); ++it) delete *it;
+}
 
 unsigned Solver::System::addCell(Thermal::Cell * cell) { 
 	unsigned cellId = m_cells.size(); 
@@ -25,14 +42,8 @@ bool Solver::System::verify() {
 	return true;
 }
 
-Solver::System::System(const Persistent::System & other) {
-	for (Persistent::MassVector::const_iterator it = other.m_masses.begin(); it != other.m_masses.end(); ++it) {
-		addCell((*it)->clone());
-	}
-
-	for (Persistent::BarrierVector::const_iterator it = other.m_barriers.begin(); it != other.m_barriers.end(); ++it) {
-		addPath((*it)->clone());
-	}
+Solver::System * Solver::StaticDissipation::clone() const {
+	return new Solver::StaticDissipation(*this);
 }
 
 bool Solver::StaticDissipation::solve(Report & report) {

@@ -7,8 +7,8 @@ namespace Solver {
 
 class Report {
 public:
-	Report();
-	virtual ~Report();
+	Report() {}
+	virtual ~Report() {}
 
 	void cellProperty(unsigned key, std::string property, double value);
 	void cellProperty(unsigned key, std::string property, int value);

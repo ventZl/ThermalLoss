@@ -57,23 +57,22 @@ namespace Persistent {
 	typedef std::vector<Mass *> MassVector;
 	typedef std::vector<Barrier *> BarrierVector;
 
-	class System: public Solver::System, public JSON::Struct {
+	class StaticDissipation: public Solver::StaticDissipation, public JSON::Struct {
 	public:
-		JSON_ARRAY_PROXY(SystemMassProxy, System, m_masses, Mass);
-		JSON_ARRAY_PROXY(SystemBarrierProxy, System, m_barriers, Barrier);
+		JSON_ARRAY_PROXY(StaticDissipationMassProxy, StaticDissipation, m_masses, Mass);
+		JSON_ARRAY_PROXY(StaticDissipationBarriersProxy, StaticDissipation, m_barriers, Barrier);
 
-		System(): json_barriers(this), json_masses(this) { addProperties(); }
+		StaticDissipation(): json_barriers(this), json_masses(this) { addProperties(); }
 
 	protected:
 		void addProperties() { JSON_PROPERTY(barriers); JSON_PROPERTY(masses); }
 
 	protected:
-		SystemBarrierProxy json_barriers;
+		StaticDissipationBarriersProxy json_barriers;
 		BarrierVector m_barriers;
 
-		SystemMassProxy json_masses;
+		StaticDissipationMassProxy json_masses;
 		MassVector m_masses;
-
-		friend class Solver::System;
 	};
+
 }

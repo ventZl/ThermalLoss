@@ -44,7 +44,7 @@ public:
 	 */
 	bool verify();
 
-	virtual void solve() = 0;
+	virtual bool solve(Report & report) = 0;
 
 	Instant * currentInstant() const { return m_currentInstant; }
 
@@ -61,11 +61,11 @@ protected:
 	Instant * m_currentInstant;
 };
 
-class StaticDissipation: public System {
+class StaticDissipation: virtual public System {
 public:
 	StaticDissipation() {}
 
-	virtual System * clone();
+	virtual System * clone() const;
 	virtual bool solve(Report & report);
 };
 

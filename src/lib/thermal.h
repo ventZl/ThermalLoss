@@ -74,7 +74,7 @@ public:
 
 
 protected:
-	Mass();
+	Mass() {}
 
 public:
 	virtual Cell * clone() const { return new Mass(*this); }
