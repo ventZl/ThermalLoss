@@ -27,6 +27,15 @@ namespace Geometry {
 	class Vertex3D;
 }
 
+namespace Solver {
+	class System;
+}
+
+namespace Thermal {
+	class Cell;
+	class Path;
+}
+
 namespace Calc {
 
 struct MaterialUsage {
@@ -64,7 +73,7 @@ class Room;
 
 class Wall {
 public:
-	Wall(const Room * room): m_room(room), m_otherRoom(NULL) {}
+	Wall(const Room * room): m_room(room), m_otherRoom(NULL), m_path(NULL) {}
 
 	RO_PROPERTY(const Room *, room);
 	PROPERTY(double, resistance);
@@ -74,6 +83,8 @@ public:
 	PROPERTY(const Room *, otherRoom);
 	PROPERTY(WallType *, wallType);
 	RO_PROPERTY(double, length);
+	RO_PROPERTY(unsigned, key);
+	RO_PROPERTY(Thermal::Path *, path);
 
 public:
 	void append(Window * window) { m_windows.push_back(window); }
@@ -81,7 +92,7 @@ public:
 	bool isOpposite(const Wall & other) const;
 	/** This may potentially lead to nasty errors... */
 	bool operator==(const Wall & other) const;
-	void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const;
+	void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses);
 
 protected:
 	std::vector<Window *> m_windows;
@@ -101,10 +112,12 @@ public:
 	PROPERTY(unsigned, level);
 	PROPERTY(double, roomTemp);
 	RO_PROPERTY(const Calculation *, calc);
+	RO_PROPERTY(unsigned, key);
+	RO_PROPERTY(Thermal::Cell *, cell);
 
 public:
 	void append(Wall * wall) { m_walls.push_back(wall); }
-	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const;
+	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses);
 	double area() const;
 	void addVertex(Geometry::Vertex3D * vertex);
 	double calcTemp(const Model::Parameters & parameters) const;
@@ -116,12 +129,14 @@ protected:
 
 class Window {
 public:
-	Window(const Wall * wall): m_wall(wall) {}
+	Window(const Wall * wall);
 	virtual ~Window() {}
 	RO_PROPERTY(const Wall *, wall);
+	RO_PROPERTY(unsigned, key);
+	RO_PROPERTY(Thermal::Path *, path);
 
 public:
-	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const = 0;
+	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) = 0;
 	virtual double area() const = 0;
 };
 
@@ -133,7 +148,7 @@ public:
 	PROPERTY(double, area);
 
 public:
-	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const;
+	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses);
 };
 
 class WindowByDef: public Window {
@@ -144,7 +159,7 @@ public:
 
 public:
 	virtual double area() const;
-	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const;
+	virtual void calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses);
 };
 
 class WindowDef;
@@ -184,8 +199,13 @@ typedef std::map<std::string, WindowDef *> WindowDefs;
 
 class Calculation {
 	public:
-		Calculation(): m_maxLevel(0) {}
+		Calculation(Solver::System * system);
 
+		RO_PROPERTY(Solver::System *, solver);
+		RO_PROPERTY(Thermal::Cell *, outsideCell);
+		RO_PROPERTY(Thermal::Cell *, groundCell);
+
+	public:
 		bool load(Model::Building & building);
 		Model::Losses * calculate(Model::Parameters & parameters, Model::MaterialLibrary & materials);
 

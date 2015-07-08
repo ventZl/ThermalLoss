@@ -8,7 +8,7 @@ using namespace Thermal;
 #define KELVIN +273.15
 
 int main(int argc, char ** argv) {
-	Mass * r1 = new Room(1, 5.5, 5.5, 2.4);
+	Mass * r1 = new Room(1, 5.5 * 5.5, 2.4);
 	Mass * m2 = new Mass(2, 1.0, AIR_DENSITY, AIR_CAPACITY);
 	Barrier * b1 = new Barrier(3, 5.5*2.4, 0.25, 0.3, r1, m2);
 	Barrier * b2 = new Barrier(3, 5.5*2.4, 0.25, 0.3, r1, m2);
@@ -24,6 +24,8 @@ int main(int argc, char ** argv) {
 	solver->initialTemperature(1, 20 KELVIN);
 	solver->initialTemperature(2, -12 KELVIN);
 	Solver::Report report;
-	if (solver->solve(report))
+	if (solver->solve(report)) {
+		report.save("report.thermal");
+	}
 	return 0;
 }

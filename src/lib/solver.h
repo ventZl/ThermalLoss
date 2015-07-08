@@ -19,8 +19,11 @@ class Report;
 
 class Instant {
 public:
+	Instant() {}
+	Instant(size_t size) { m_energy.resize(size); }
 	double energy(unsigned cell) const;
 	void energy(unsigned cell, double energy);
+	size_t size() const { return m_energy.size(); }
 
 protected:
 	std::vector<double> m_energy;

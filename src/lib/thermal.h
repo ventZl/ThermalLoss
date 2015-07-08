@@ -30,7 +30,7 @@ public:
 	virtual double temperature(double energy) const = 0;
 	virtual double energy(double temperature) const = 0;
 	const std::vector<Path *> paths() const { return m_paths; }
-	unsigned key() const { return m_key; }
+	unsigned key() const { return name(); }
 
 protected:
 	void addPath(Path * path) { m_paths.push_back(path); }
@@ -58,7 +58,7 @@ public:
 
 	// Transport given amount of heat between connected cells
 	virtual double transport(Solver::System * system, double timeslice) = 0;
-	unsigned key() const { return m_key; }
+	unsigned key() const { return name(); }
 
 	Cell * cell1() { return m_cell1; }
 	Cell * cell2() { return m_cell2; }
@@ -89,7 +89,9 @@ protected:
 
 class Barrier: public Path {
 public:
-	Barrier(unsigned key, double surface, double width, double conductivity, Cell * cell1, Cell * cell2): Path(key, cell1, cell2), m_surface(surface), m_width(width) {}
+	Barrier(unsigned key, double surface, double width, double conductivity, Cell * cell1,	Cell * cell2): Path(key, cell1, cell2), m_surface(surface), m_width(width), m_conductivity(conductivity) {}
+	// Constructor for cases when you know overall thermal conductivity, not just material
+	Barrier(unsigned key, double surface, double conductivity, Cell * cell1, Cell * cell2): Path(key, cell1, cell2), m_surface(surface), m_width(1), m_conductivity(conductivity) {}
 
 protected:
 	Barrier() {}
@@ -110,7 +112,7 @@ protected:
 
 class Room: public Mass {
 public:
-	Room(unsigned key, double width, double depth, double height): Mass(key, width * depth * height, AIR_DENSITY, AIR_CAPACITY) {}
+	Room(unsigned key, double area, double height): Mass(key, area * height, AIR_DENSITY, AIR_CAPACITY) {}
 	virtual Cell * clone() const { return new Room(*this); }
 
 };

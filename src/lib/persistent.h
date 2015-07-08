@@ -2,6 +2,7 @@
 #include "named.h"
 #include "solver.h"
 #include "thermal.h"
+#include "report.h"
 
 #define JSON_ATTACH(name) json_ ## name(&m_ ## name)
 #define JSON_AUX_PROPERTY(name) # name
@@ -74,5 +75,4 @@ namespace Persistent {
 		StaticDissipationMassProxy json_masses;
 		MassVector m_masses;
 	};
-
 }

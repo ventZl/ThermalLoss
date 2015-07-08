@@ -12,7 +12,7 @@ double Solver::Instant::energy(unsigned cell) const {
 }
 
 void Solver::Instant::energy(unsigned cell, double energy) {
-	assert(energy >= 0.0);
+//	assert(energy >= 0.0);
 	// not the most optimal way
 	if (cell >= m_energy.size()) m_energy.resize(cell+1);
 	printf("Setting cell %d energy to %f\n", cell, energy);
@@ -28,7 +28,7 @@ unsigned Solver::System::addCell(Thermal::Cell * cell) {
 	unsigned cellId = m_cells.size(); 
 	m_cells.push_back(cell); 
 	m_cellKeys.insert(std::map<unsigned, unsigned>::value_type(cell->key(), cellId)); 
-	printf("Cell id is %d\n", cellId);
+	printf("Cell key %d id is %d\n", cell->key(), cellId);
 	return cellId; 
 }
 
@@ -53,6 +53,7 @@ Solver::System * Solver::StaticDissipation::clone() const {
 
 void Solver::System::initialTemperature(unsigned key, double temperature) {
 	unsigned cellId = cellIdByKey(key);
+	printf("Cell key %d id is %d\n", key, cellId);
 	m_initialInstant.energy(cellId, cell(cellId)->energy(temperature));
 }
 
@@ -61,7 +62,7 @@ bool Solver::StaticDissipation::solve(Report & report) {
 
 	Instant * currentInstant = new Solver::Instant(m_initialInstant);
 	this->currentInstant(currentInstant);
-	Instant * reportInstant = new Solver::Instant();
+	Instant * reportInstant = new Solver::Instant(currentInstant->size());
 
 	std::vector<Thermal::Path *>::iterator it;
 	for (it = m_paths.begin(); it != m_paths.end(); ++it) {

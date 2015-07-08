@@ -9,4 +9,4 @@ include_directories(${CMAKE_SRC_DIR} ${CMAKE_SRC_DIR}/src/)
 
 set(app_SRCS app.cpp)
 add_executable(tl ${app_SRCS})
-target_link_libraries(tl model json calc geom)
+target_link_libraries(tl model json calc geom utils)

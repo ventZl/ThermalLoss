@@ -2,6 +2,7 @@
 #include "model/building.h"
 #include "model/losses.h"
 #include "calc/calc.h"
+#include <lib/solver.h>
 
 #define STR_AUX(s) #s
 #define STR(s) STR_AUX(s)
@@ -27,7 +28,8 @@ int main(int argc, char ** argv) {
 	Model::Building * building = Model::loadBuilding(argv[1]);
 	if (building == NULL) printf("Building is invalid\n");
 	Model::Parameters * parameters = loadParameters(argv[2]);
-	Calc::Calculation * calc = new Calc::Calculation();
+	Solver::StaticDissipation * solver = new Solver::StaticDissipation();
+	Calc::Calculation * calc = new Calc::Calculation(solver);
 	calc->load(*building);
 	Model::Losses * losses = calc->calculate(*parameters, *ml);
 	JSON::store(argv[3], losses);

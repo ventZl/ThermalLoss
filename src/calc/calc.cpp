@@ -5,8 +5,15 @@
 #include <model/losses.h>
 #include <geom/vertex.h>
 #include <geom/polygon.h>
+#include <lib/thermal.h>
+#include <lib/solver.h>
 
-void Calc::Wall::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const {
+unsigned getUniqueId() {
+	static unsigned id = 1;
+	return id++;
+}
+
+void Calc::Wall::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) {
 //	printf("\n\nWall thermal report\n===================\n");
 	double surface = room()->height() * this->length();
 	//	printf("Room of this wall is %p\n", room());
@@ -25,24 +32,27 @@ void Calc::Wall::calculate(const Model::MaterialLibrary & materials, const Model
 		surface -= windowSurface;
 	}
 
-	/* for now ignore thermal transfer between two internal rooms */
-	if (otherRoom() != NULL) {
-//		fprintf(stderr, "Ignoring thermal transfer between internal rooms for now\n");
-		return;
-	}
+	Thermal::Cell * otherSideCell = NULL;
+	if (otherRoom() != NULL) otherSideCell = otherRoom()->cell();
+	else otherSideCell = room()->calc()->outsideCell();
 
-	double flow = (room()->calcTemp(parameters) - parameters.outTemp()) / resistance;
+	m_path = new Thermal::Barrier(getUniqueId(), surface, 1.0f/resistance, room()->cell(), otherSideCell);
+	this->room()->calc()->solver()->addPath(m_path);
+
+	/* for now ignore thermal transfer between two internal rooms */
+
+//	double flow = (room()->calcTemp(parameters) - parameters.outTemp()) / resistance;
 //	printf("Thermal flow is %.3f W/m^2 (for temp difference of %.2f deg. C)\n", flow, (room()->calcTemp(parameters) - parameters.outTemp()));
-	double power = flow * surface;
+//	double power = flow * surface;
 //	printf("Thermal dissipation power is %.3f W\n", power);
 
 //	printf("Adding wall loss of %.4f (%f, %f, %f)\n", power, flow, resistance, surface);
-	losses.addWallLoss(0, power);
-	losses.addRelativeLoss(surface / resistance);
+//	losses.addWallLoss(0, power);
+//	losses.addRelativeLoss(surface / resistance);
 	return;
 }
 
-Calc::Room::Room(const Calc::Calculation * calc): m_bottomMost(true), m_topMost(true), m_calc(calc), m_polygon(new Geometry::Polygon()) {
+Calc::Room::Room(const Calc::Calculation * calc): m_bottomMost(true), m_topMost(true), m_calc(calc), m_key(getUniqueId()), m_cell(NULL), m_polygon(new Geometry::Polygon()) {
 }
 
 Calc::Room::~Room() {
@@ -62,31 +72,37 @@ double Calc::Room::calcTemp(const Model::Parameters & parameters) const {
 	return m_roomTemp;
 }
 
-void Calc::Room::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const {
+void Calc::Room::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) {
 //	printf("\nRoom thermal report\n===================\n");
 	double area = this->area();
+	m_cell = new Thermal::Room(m_key, area, height());
+	calc()->solver()->addCell(m_cell);
 //	printf("Room area is %.2f m^2\n", area);
 	/* Currently we ignore intra-level heat transfer */
 	if (m_bottomMost) {
 		double floorResistance = m_floorType->resistance(materials) + 0.2; // 0.2 is resistance of air layer near floor
+		Thermal::Path * path = new Thermal::Barrier(getUniqueId(), area, 1.0/floorResistance, m_cell, calc()->groundCell());
+		calc()->solver()->addPath(path);
 //		printf("Floor resistance is %.3f m^2.K/W\n", floorResistance);
-		double flow = (calcTemp(parameters) - parameters.groundTemp()) / floorResistance;
+//		double flow = (calcTemp(parameters) - parameters.groundTemp()) / floorResistance;
 //		printf("Thermal difference is %.2f deg. C (%.2f, %.2f)\n", calcTemp(parameters) - parameters.groundTemp(), calcTemp(parameters), parameters.groundTemp());
-		double power = area * flow;
-		losses.addFloorLoss(0, power);
-		losses.addRelativeLoss(area / floorResistance);
+//		double power = area * flow;
+//		losses.addFloorLoss(0, power);
+//		losses.addRelativeLoss(area / floorResistance);
 	}
 	if (m_topMost) {
 		double ceilingResistance = m_ceilingType->resistance(materials) + 0.1; // 0.1 is resistance of air layer near ceiling
+		Thermal::Path * path = new Thermal::Barrier(getUniqueId(), area, 1.0/ceilingResistance, m_cell, calc()->outsideCell());
+		calc()->solver()->addPath(path);
 //		printf("Ceiling resistance is %.3f m^2.K/W\n", ceilingResistance);
-		double flow = (calcTemp(parameters) - parameters.outTemp()) / ceilingResistance;
+//		double flow = (calcTemp(parameters) - parameters.outTemp()) / ceilingResistance;
 //		printf("Thermal difference is %.2f deg. C\n", calcTemp(parameters) - parameters.outTemp());
-		double power = area * flow;
-		losses.addCeilLoss(0, power);
-		losses.addRelativeLoss(area / ceilingResistance);
+//		double power = area * flow;
+//		losses.addCeilLoss(0, power);
+//		losses.addRelativeLoss(area / ceilingResistance);
 	}
 //	printf("adding loss area of %f\n", area);
-	losses.addArea(area);
+//	losses.addArea(area);
 	return;
 }
 
@@ -94,8 +110,10 @@ void Calc::Room::addVertex(Geometry::Vertex3D * vertex) {
 	m_polygon->addVertex(*vertex); 
 }
 
+Calc::Window::Window(const Calc::Wall * wall): m_wall(wall), m_key(getUniqueId()), m_path(NULL) {
+}
 
-void Calc::WindowBySpecs::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const {
+void Calc::WindowBySpecs::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) {
 	double flow = (wall()->room()->calcTemp(parameters) - parameters.outTemp()) / m_resistance;
 	double power = m_area * flow;
 	losses.addWindowLoss(0, power);
@@ -103,7 +121,7 @@ void Calc::WindowBySpecs::calculate(const Model::MaterialLibrary & materials, co
 	return;
 }
 
-void Calc::WindowByDef::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) const {
+void Calc::WindowByDef::calculate(const Model::MaterialLibrary & materials, const Model::Parameters & parameters, Model::Losses & losses) {
 	Calc::WindowDef * winDef = wall()->room()->calc()->windowDef(m_name);
 	double flow = (wall()->room()->calcTemp(parameters) - parameters.outTemp()) / winDef->resistance();
 	double power = winDef->area() * flow;
@@ -189,6 +207,14 @@ void Calc::WallType::addLayer(const std::string & name, double depth) {
 	m_layers.push_back(Calc::MaterialUsage(name, depth));
 	return;
 }
+
+Calc::Calculation::Calculation(Solver::System * system): m_solver(system), m_maxLevel(0) {
+	m_outsideCell = new Thermal::Room(getUniqueId(), 10000000, 100);
+	m_groundCell = new Thermal::Mass(getUniqueId(), 10000, 100000, 1);
+    solver()->addCell(m_outsideCell);
+	solver()->addCell(m_groundCell);   
+}
+
 
 bool Calc::Calculation::load(Model::Building & building) {
 	for (unsigned q = 0; q < building.points(); ++q) {
@@ -354,12 +380,12 @@ Model::Losses * Calc::Calculation::calculate(Model::Parameters & parameters, Mod
 		}
 	}
 
-	for (unsigned q = 0; q < m_walls.size(); q++) {
-		m_walls[q]->calculate(materials, parameters, *outLosses);
-	}
-
 	for (unsigned q = 0; q < m_rooms.size(); q++) {
 		m_rooms[q]->calculate(materials, parameters, *outLosses);
+	}
+
+	for (unsigned q = 0; q < m_walls.size(); q++) {
+		m_walls[q]->calculate(materials, parameters, *outLosses);
 	}
 
 	for (unsigned q = 0; q < m_windows.size(); q++) {
