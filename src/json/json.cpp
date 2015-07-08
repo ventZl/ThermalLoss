@@ -13,6 +13,10 @@
 
 #include "json.h"
 
+/** Custom implementation of istream.
+ * Provides us with information about currently parsed line content
+ * and line number being currently processed.
+ */
 class parseIstream: public std::ifstream {
 public:
 	parseIstream(const char * filename): std::ifstream(filename), m_lineReset(false), m_lineNo(1) {}
@@ -30,6 +34,8 @@ protected:
 typedef std::multimap<std::string, JSON::Reference *> FwdReferenceMap;
 typedef std::map<std::string, JSON::Node *> RevReferenceMap;
 
+/** Allows resolution of cross-references.
+ */
 class ReferenceManager {
 public:
 	static void addReference(const std::string & id, JSON::Reference * __reference);

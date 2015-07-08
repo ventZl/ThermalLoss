@@ -5,6 +5,7 @@
 #include "persistent.h"
 
 double Solver::Instant::energy(unsigned cell) const {
+	assert(cell < m_energy.size());
 	std::vector<double>::const_iterator it = m_energy.begin() + cell;
 	assert(it != m_energy.end());
 	return *it;
@@ -12,6 +13,9 @@ double Solver::Instant::energy(unsigned cell) const {
 
 void Solver::Instant::energy(unsigned cell, double energy) {
 	assert(energy >= 0.0);
+	// not the most optimal way
+	if (cell >= m_energy.size()) m_energy.resize(cell+1);
+	printf("Setting cell %d energy to %f\n", cell, energy);
 	m_energy[cell] = energy;
 }
 
@@ -24,6 +28,7 @@ unsigned Solver::System::addCell(Thermal::Cell * cell) {
 	unsigned cellId = m_cells.size(); 
 	m_cells.push_back(cell); 
 	m_cellKeys.insert(std::map<unsigned, unsigned>::value_type(cell->key(), cellId)); 
+	printf("Cell id is %d\n", cellId);
 	return cellId; 
 }
 
@@ -31,7 +36,7 @@ unsigned Solver::System::addPath(Thermal::Path * path) {
 	unsigned pathId = m_paths.size(); 
 	m_paths.push_back(path);
 	/* m_pathKeys.insert(std::map<unsigned, unsigned>::value_type(path.key(), pathId));*/ 
-	return pathId; 
+	return pathId;
 }
 
 bool Solver::System::verify() {
@@ -44,6 +49,11 @@ bool Solver::System::verify() {
 
 Solver::System * Solver::StaticDissipation::clone() const {
 	return new Solver::StaticDissipation(*this);
+}
+
+void Solver::System::initialTemperature(unsigned key, double temperature) {
+	unsigned cellId = cellIdByKey(key);
+	m_initialInstant.energy(cellId, cell(cellId)->energy(temperature));
 }
 
 bool Solver::StaticDissipation::solve(Report & report) {
