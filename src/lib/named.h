@@ -10,6 +10,8 @@ class Named;
 
 typedef std::map<unsigned, Named *> NamedList;
 
+/** Way to get the object by it's unique identifier from any place in code.
+ */
 class Named {
 public:
 	Named(unsigned name): m_name(name) { if (name == 0) throw std::runtime_error("Invalid name of namable"); Named::add(m_name, this); }
