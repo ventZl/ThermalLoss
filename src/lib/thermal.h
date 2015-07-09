@@ -4,6 +4,8 @@
 #include <vector>
 #include "named.h"
 
+#define KELVIN			273.16
+
 namespace Solver {
 	class System;
 }

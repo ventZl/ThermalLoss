@@ -3,6 +3,7 @@
 #include "model/losses.h"
 #include "calc/calc.h"
 #include <lib/solver.h>
+#include <lib/report.h>
 
 #define STR_AUX(s) #s
 #define STR(s) STR_AUX(s)
@@ -31,8 +32,14 @@ int main(int argc, char ** argv) {
 	Solver::StaticDissipation * solver = new Solver::StaticDissipation();
 	Calc::Calculation * calc = new Calc::Calculation(solver);
 	calc->load(*building);
-	Model::Losses * losses = calc->calculate(*parameters, *ml);
-	JSON::store(argv[3], losses);
+	Solver::Report report;
+	calc->calculate(*parameters, *ml, report);
+	if (solver->verify()) {
+		if (solver->solve(report)) {
+			report.save(argv[3]);
+		}
+	}
+//	JSON::store(argv[3], losses);
 
 	return 0;
 }

@@ -5,7 +5,6 @@
 
 using namespace Thermal;
 
-#define KELVIN +273.15
 
 int main(int argc, char ** argv) {
 	Mass * r1 = new Room(1, 5.5 * 5.5, 2.4);
@@ -21,8 +20,8 @@ int main(int argc, char ** argv) {
 	solver->addPath(b2);
 	solver->addPath(b3);
 	solver->addPath(b4);
-	solver->initialTemperature(1, 20 KELVIN);
-	solver->initialTemperature(2, -12 KELVIN);
+	solver->initialTemperature(1, 20 + KELVIN);
+	solver->initialTemperature(2, -12 + KELVIN);
 	Solver::Report report;
 	if (solver->solve(report)) {
 		report.save("report.thermal");

@@ -15,7 +15,7 @@ void Solver::Instant::energy(unsigned cell, double energy) {
 //	assert(energy >= 0.0);
 	// not the most optimal way
 	if (cell >= m_energy.size()) m_energy.resize(cell+1);
-	printf("Setting cell %d energy to %f\n", cell, energy);
+	printf("%s(): Setting cell %d energy to %f\n", __FUNCTION__, cell, energy);
 	m_energy[cell] = energy;
 }
 
@@ -28,7 +28,7 @@ unsigned Solver::System::addCell(Thermal::Cell * cell) {
 	unsigned cellId = m_cells.size(); 
 	m_cells.push_back(cell); 
 	m_cellKeys.insert(std::map<unsigned, unsigned>::value_type(cell->key(), cellId)); 
-	printf("Cell key %d id is %d\n", cell->key(), cellId);
+	printf("%s(): Cell key %d id is %d\n", __FUNCTION__, cell->key(), cellId);
 	return cellId; 
 }
 
@@ -53,7 +53,7 @@ Solver::System * Solver::StaticDissipation::clone() const {
 
 void Solver::System::initialTemperature(unsigned key, double temperature) {
 	unsigned cellId = cellIdByKey(key);
-	printf("Cell key %d id is %d\n", key, cellId);
+	printf("%s(): Cell key %d id is %d\n", __FUNCTION__, key, cellId);
 	m_initialInstant.energy(cellId, cell(cellId)->energy(temperature));
 }
 
