@@ -208,6 +208,7 @@ class Calculation {
 		RO_PROPERTY(Solver::System *, solver);
 		RO_PROPERTY(Thermal::Cell *, outsideCell);
 		RO_PROPERTY(Thermal::Cell *, groundCell);
+		RO_PROPERTY(Thermal::Cell *, ceilingCell);
 
 	public:
 		bool load(Model::Building & building);
@@ -235,7 +236,7 @@ class Calculation {
 		WindowDefs m_windowDefs;
 		
 		unsigned m_maxLevel;
-		unsigned m_outsideId, m_groundId;
+		unsigned m_outsideId, m_groundId, m_ceilingId;
 };
 
 }

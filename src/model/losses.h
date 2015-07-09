@@ -12,18 +12,20 @@ namespace Model {
 
 class Parameters: public JSON::Struct {
 public:
-	Parameters(): JSON_ATTACH(outTemp), JSON_ATTACH(roomTemp), JSON_ATTACH(groundTemp) { addProperties(); }
+	Parameters(): JSON_ATTACH(outTemp), JSON_ATTACH(roomTemp), JSON_ATTACH(groundTemp), JSON_ATTACH(ceilingTemp) { addProperties(); }
 
 protected:
-	void addProperties() { addProperty("outTemp", &json_outTemp); addProperty("roomTemp", &json_roomTemp); addProperty("groundTemp", &json_groundTemp); }
+	void addProperties() { addProperty("outTemp", &json_outTemp); addProperty("roomTemp", &json_roomTemp); addProperty("groundTemp", &json_groundTemp); addProperty("ceilingTemp", &json_ceilingTemp); }
 
 	JSON::Simple::Float json_outTemp;
 	JSON::Simple::Float json_roomTemp;
 	JSON::Simple::Float json_groundTemp;
+	JSON::Simple::Float json_ceilingTemp;
 
 	RO_PROPERTY(float, outTemp);
 	RO_PROPERTY(float, roomTemp);
 	RO_PROPERTY(float, groundTemp);
+	RO_PROPERTY(float, ceilingTemp);
 };
 
 class RoomLosses: public JSON::Struct {

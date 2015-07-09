@@ -110,7 +110,7 @@ void Calc::Room::calculate(const Model::MaterialLibrary & materials, const Model
 	if (m_topMost) {
 		double ceilingResistance = m_ceilingType->resistance(materials) + 0.1; // 0.1 is resistance of air layer near ceiling
 		unsigned ceilingId = getUniqueId();
-		Thermal::Path * path = new Thermal::Barrier(ceilingId, area, 1.0/ceilingResistance, m_cell, calc()->outsideCell());
+		Thermal::Path * path = new Thermal::Barrier(ceilingId, area, 1.0/ceilingResistance, m_cell, calc()->ceilingCell());
 		report.pathProperty(ceilingId, "kind", std::string("ceiling"));
 		report.pathProperty(ceilingId, "room", name());
 		calc()->solver()->addPath(path);
@@ -250,10 +250,13 @@ void Calc::WallType::addLayer(const std::string & name, double depth) {
 Calc::Calculation::Calculation(Solver::System * system): m_solver(system), m_maxLevel(0) {
 	m_outsideId = getUniqueId();
 	m_groundId = getUniqueId();
+	m_ceilingId = getUniqueId();
 	m_outsideCell = new Thermal::Room(m_outsideId, 10000000, 100);
 	m_groundCell = new Thermal::Mass(m_groundId, 10000, 100000, 1);
+	m_ceilingCell = new Thermal::Room(m_ceilingId, 10000000, 100);
     solver()->addCell(m_outsideCell);
-	solver()->addCell(m_groundCell);   
+	solver()->addCell(m_groundCell);
+	solver()->addCell(m_ceilingCell);
 }
 
 
@@ -407,8 +410,10 @@ Calc::WindowDef * Calc::Calculation::windowDef(const std::string & name) const {
 void Calc::Calculation::calculate(Model::Parameters & parameters, Model::MaterialLibrary & materials, Solver::Report & report) {
 	solver()->initialTemperature(m_outsideId, parameters.outTemp() + KELVIN);
 	solver()->initialTemperature(m_groundId, parameters.groundTemp() + KELVIN);
+	solver()->initialTemperature(m_ceilingId, parameters.ceilingTemp() + KELVIN);
 	report.cellProperty(m_outsideId, "kind", std::string("outside"));
 	report.cellProperty(m_groundId, "kind", std::string("ground"));
+	report.cellProperty(m_ceilingId, "kind", std::string("ceiling"));
 
 //	Model::Losses * outLosses = new Model::Losses();
 	for (Calc::WindowDefs::iterator it = m_windowDefs.begin(); it != m_windowDefs.end(); ++it) {

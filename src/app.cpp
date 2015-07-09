@@ -37,7 +37,11 @@ int main(int argc, char ** argv) {
 	if (solver->verify()) {
 		if (solver->solve(report)) {
 			report.save(argv[3]);
+		} else {
+			fprintf(stderr, "Unable to solve\n");
 		}
+	} else {
+		fprintf(stderr, "There are unconnected cells in mesh\n");
 	}
 //	JSON::store(argv[3], losses);
 

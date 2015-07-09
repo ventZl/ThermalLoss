@@ -245,7 +245,7 @@ void parseError(parseIstream & stream, std::string errmsg) {
 		printf("Parse error: %s\n", errmsg.c_str());
 		abort();
 	}
-	exit(0);
+	exit(1);
 }
 
 char parseWhitespace(parseIstream & input) {
