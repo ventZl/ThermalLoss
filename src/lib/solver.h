@@ -24,12 +24,12 @@ class Report;
 class Instant {
 public:
 	/** Creates empty instant */
-	Instant() {}
+	Instant();
 	/** Creates pre-sized instant.
 	 * Allows potentially faster operation if size of mesh is known.
 	 * @param size mesh size for which instant is created
 	 */
-	Instant(size_t size) { m_energy.resize(size); }
+	Instant(size_t size);
 
 	/** Get energy of a mesh cell.
 	 * @param cell ID (offset) of cell in mesh
@@ -47,9 +47,16 @@ public:
 	 * @return amount of cells in instant
 	 */
 	size_t size() const { return m_energy.size(); }
+	void resize(size_t new_size);
+	bool valueIsSet(unsigned cell) const;
 
 protected:
+	void valueIsSet(unsigned cell, bool set);
+
+protected:
+	size_t m_size;						///< size of instant
 	std::vector<double> m_energy;		///< cell energy storage
+	std::vector<unsigned char> m_allocMap; 	///< tell which cell is allocated and which is not
 };
 
 /** Solver public interface.

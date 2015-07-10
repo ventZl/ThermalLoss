@@ -1,22 +1,52 @@
 #include <assert.h>
+#include <stdexcept>
 #include "solver.h"
 #include "thermal.h"
 #include "report.h"
 #include "persistent.h"
 
+Solver::Instant::Instant(): m_size(0) {
+}
+
+Solver::Instant::Instant(size_t size): m_size(size), m_energy(size), m_allocMap((size/8)+1) {
+	for (std::vector<unsigned char>::iterator it = m_allocMap.begin(); it != m_allocMap.end(); ++it) (*it) = 0;
+}
+
+void Solver::Instant::resize(size_t new_size) {
+	size_t old_size = m_size;
+	m_energy.resize(new_size);
+	m_allocMap.resize((new_size / 8) + 1);
+	// zero out newly "allocated elements"
+	for (unsigned q = old_size; q < new_size; ++q) {
+		m_allocMap[q/8] &= ~(1 < (q % 8));
+	}
+	m_size = new_size;
+}
+
+bool Solver::Instant::valueIsSet(unsigned cell) const {
+	if (cell >= m_size) return false;
+	return m_allocMap[cell / 8] & (1 << (cell % 8)) != 0;
+}
+
+void Solver::Instant::valueIsSet(unsigned cell, bool is) {
+	if (is) m_allocMap[cell / 8] |= (1 << (cell % 8));
+	else m_allocMap[cell / 8] &= ~(1 << (cell % 8));
+}
+
 double Solver::Instant::energy(unsigned cell) const {
-	assert(cell < m_energy.size());
-	std::vector<double>::const_iterator it = m_energy.begin() + cell;
-	assert(it != m_energy.end());
-	return *it;
+	if (cell >= m_size) throw std::out_of_range("Not defined");
+	if (!valueIsSet(cell)) throw std::invalid_argument("Not defined");
+	return m_energy[cell];
 }
 
 void Solver::Instant::energy(unsigned cell, double energy) {
 //	assert(energy >= 0.0);
 	// not the most optimal way
-	if (cell >= m_energy.size()) m_energy.resize(cell+1);
+	if (cell >= m_size) resize(cell + 1);
 	printf("%s(): Setting cell %d energy to %f\n", __FUNCTION__, cell, energy);
 	m_energy[cell] = energy;
+	valueIsSet(cell, true);
+	return;
 }
 
 Solver::System::~System() {
