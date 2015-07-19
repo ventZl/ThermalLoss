@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stdexcept>
 
 #include "thermal.h"
 #include "solver.h"
@@ -13,7 +14,9 @@ void Thermal::Cell::removePath(Path * path) {
 
 
 double Thermal::Mass::temperature(double energy) const {
-	return energy / (m_volume * m_density * m_capacity);
+	double temp = energy / (m_volume * m_density * m_capacity);
+	if (temp > 100000.0) throw std::runtime_error("We are not inside the sun");
+	return temp;
 }
 
 double Thermal::Mass::energy(double temperature) const {
@@ -23,12 +26,12 @@ double Thermal::Mass::energy(double temperature) const {
 double Thermal::Barrier::transport(Solver::System * system, double timeslice) {
 	unsigned cell1Id = system->cellIdByKey(cell1()->key());
 	unsigned cell2Id = system->cellIdByKey(cell2()->key());
-	printf("%s(): cell1 id = %d\ncell2 id = %d\n", __FUNCTION__, cell1Id, cell2Id);
+//	printf("%s(): cell1 id = %d\ncell2 id = %d\n", __FUNCTION__, cell1Id, cell2Id);
 	double temp1 = cell1()->temperature(system->currentInstant()->energy(cell1Id));
 	double temp2 = cell2()->temperature(system->currentInstant()->energy(cell2Id));
-	printf("%s(): cell1 temperature = %.2f\n%s(): cell2 temperature = %.2f\n", __FUNCTION__, temp1,  __FUNCTION__,temp2);
-	printf("%s(): conductivity = %.2f m.K/W\n%s(): surface = %.2f m^2\n%s(): width = %.2f m\n", __FUNCTION__, m_conductivity, __FUNCTION__, m_surface, __FUNCTION__, m_width);
-	double value = (((m_conductivity * (temp1 - temp2)) / m_width) * m_surface) / timeslice;	
-	printf("%s(): heat transported = %.2f J\n", __FUNCTION__, value);
+//	printf("%s(): cell1 temperature = %.2f K (%.2f deg. C)\n%s(): cell2 temperature = %.2f K (%.2f deg. C)\n", __FUNCTION__, temp1, temp1 - KELVIN,  __FUNCTION__, temp2, temp2 - KELVIN);
+//	printf("%s(): conductivity = %.2f m.K/W\n%s(): surface = %.2f m^2\n%s(): width = %.2f m\n", __FUNCTION__, m_conductivity, __FUNCTION__, m_surface, __FUNCTION__, m_width);
+	double value = (((m_conductivity * (temp1 - temp2)) / m_width) * m_surface) * timeslice;	
+//	printf("%s(): heat transported = %.2f J\n", __FUNCTION__, value);
 	return value;
 }

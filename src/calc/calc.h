@@ -117,6 +117,7 @@ public:
 	RO_PROPERTY(unsigned, key);
 	RO_PROPERTY(Thermal::Cell *, cell);
 	PROPERTY(std::string, name);
+	PROPERTY(bool, heated);
 
 public:
 	void append(Wall * wall) { m_walls.push_back(wall); }

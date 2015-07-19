@@ -64,7 +64,7 @@ void Calc::Wall::calculate(const Model::MaterialLibrary & materials, const Model
 	return;
 }
 
-Calc::Room::Room(const Calc::Calculation * calc): m_bottomMost(true), m_topMost(true), m_calc(calc), m_key(getUniqueId()), m_cell(NULL), m_polygon(new Geometry::Polygon()) {
+Calc::Room::Room(const Calc::Calculation * calc): m_bottomMost(true), m_topMost(true), m_calc(calc), m_key(getUniqueId()), m_cell(NULL), m_heated(true), m_polygon(new Geometry::Polygon()) {
 }
 
 Calc::Room::~Room() {
@@ -89,7 +89,8 @@ void Calc::Room::calculate(const Model::MaterialLibrary & materials, const Model
 	double area = this->area();
 	m_cell = new Thermal::Room(m_key, area, height());
 	calc()->solver()->addCell(m_cell);
-	calc()->solver()->initialTemperature(m_key, calcTemp(parameters) + KELVIN);
+	if (heated())
+		calc()->solver()->initialTemperature(m_key, calcTemp(parameters) + KELVIN);
 	report.cellProperty(m_key, "name", name());
 //	printf("Room area is %.2f m^2\n", area);
 	/* Currently we ignore intra-level heat transfer */
@@ -355,6 +356,7 @@ Calc::Room * Calc::Calculation::collectRoom(const Calc::Calculation * calc, cons
 	room_->ceilingType(wallType(m_floors[room.level() + 1]));
 	room_->roomTemp(room.internalTemperature());
 	room_->name(room.name());
+	room_->heated(!room.unheated());
 //	printf("Room internal temperature is %.2f deg. C\n", room_->roomTemp());
 	if (room.level() > 0) room_->bottomMost(false);
 	if (m_maxLevel < room.level()) m_maxLevel = room.level();

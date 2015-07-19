@@ -8,11 +8,13 @@
 #define JSON_AUX_PROPERTY(name) # name
 #define JSON_PROPERTY(name) addProperty(JSON_AUX_PROPERTY(name), &json_ ## name)
 
+#define KELVIN	273.16
+
 namespace Model {
 
 class Parameters: public JSON::Struct {
 public:
-	Parameters(): JSON_ATTACH(outTemp), JSON_ATTACH(roomTemp), JSON_ATTACH(groundTemp), JSON_ATTACH(ceilingTemp) { addProperties(); }
+	Parameters(): JSON_ATTACH(outTemp), JSON_ATTACH(roomTemp), JSON_ATTACH(groundTemp), JSON_ATTACH(ceilingTemp), m_outTemp(-KELVIN), m_roomTemp(-KELVIN), m_groundTemp(-KELVIN), m_ceilingTemp(-KELVIN) { addProperties(); }
 
 protected:
 	void addProperties() { addProperty("outTemp", &json_outTemp); addProperty("roomTemp", &json_roomTemp); addProperty("groundTemp", &json_groundTemp); addProperty("ceilingTemp", &json_ceilingTemp); }
