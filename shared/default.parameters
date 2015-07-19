@@ -1,5 +1,6 @@
 {
-	"outTemp" : -20.0,
+	"outTemp" : -12.0,
 	"roomTemp" : 20,
-	"groundTemp" : 5
+	"groundTemp" : 5,
+	"ceilingTemp" : -5
 }

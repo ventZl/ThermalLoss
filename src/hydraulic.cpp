@@ -1,6 +1,7 @@
 #include <math.h>
 #include <assert.h>
 #include <vector>
+#include <string>
 #include <lib/reynolds.h>
 
 class Line;
@@ -98,13 +99,15 @@ std::vector<Node *> Node::s_insts;
 
 class Radiator: public FlowProvider {
 public:
-	Radiator(double power): m_power(power) {}
+	Radiator(double power, const std::string & name): m_power(power), m_name(name) {}
 	double flow() const;
 	double tempLoss(double outTemp) const;
 	double pressureLoss() const;
+	const std::string & name() const { return m_name; }
 
 protected:
 	double m_power;
+	std::string m_name;
 };
 
 void Line::append(Line * other) {
@@ -175,7 +178,7 @@ double Radiator::flow() const {
 	double outTemp = outNode()->temperature();
 	double deltaP = inNode()->pressure() - outNode()->pressure();
 	double flow = m_power / (4186 * (inTemp - outTemp));
-	printf("Radiator stats\n==============\nDelta t = %f deg. C\tPower = %.2f W \tFlow %.3f kg/s\tPressure = %f Pa\n\n", (inTemp - outTemp), m_power, flow, deltaP);
+	printf("Radiator %s\n==============\nDelta t = %f deg. C\tPower = %.2f W \tFlow %.6f kg/h\tPressure = %f Pa\tkv = %.3f m^3/h\n\n", m_name.c_str(), (inTemp - outTemp), m_power, flow * 3600.0, deltaP, (flow * 3600) / sqrt(deltaP));
 	return flow;
 }
 
@@ -187,10 +190,10 @@ double Radiator::pressureLoss() const {
 	return inNode()->pressure() - outNode()->pressure();
 }
 
-Radiator * genRadiator(Pipe * input, Pipe * output, double power, double diameter, double wall, double l1, double l2) {
+Radiator * genRadiator(Pipe * input, Pipe * output, const std::string & name, double power, double diameter, double wall, double l1, double l2) {
 	Pipe * inLine = new Pipe(diameter, wall, l1);
 	Pipe * outLine = new Pipe(diameter, wall, l2);
-	Radiator * r = new Radiator(power);
+	Radiator * r = new Radiator(power, name);
 	r->prepend(inLine);
 	r->append(outLine);
 	input->append(inLine);
@@ -286,7 +289,7 @@ void forwardPressureLoss(Node * start) {
 		if (r) continue;		// this is radiator, do not traverse it
 		double deltaP = (*it)->pressureLoss();
 		(*it)->outNode()->pressure(start->pressure() - deltaP);
-		printf("Delta p is %f\nEndpoint poressure is %f\n mbar", deltaP, (*it)->outNode()->temperature() / 1000.0f);
+		printf("Delta p is %f\nEndpoint poressure is %f mbar\n", deltaP, (*it)->outNode()->temperature() / 1000.0f);
 	
 		forwardPressureLoss((*it)->outNode());
 	}
@@ -331,24 +334,28 @@ void calcRadiatorFlows() {
 }*/
 
 int main(int argc, char ** argv) {
+
 	Node * systemInput = new Node();
 	Node * systemOutput = new Node();
+
+	double largeDiameter = 16 mm;
+	double smallDiameter = 10 mm;
 
 	systemInput->pressure(20000);
 	systemOutput->pressure(0);
 
 	// "stupacka"
-	Pipe * p0 = new Pipe(16 mm, 1 mm, 1.5);
+	Pipe * p0 = new Pipe(largeDiameter, 1 mm, 1.5);
 	// vyvod radiator dielna
-	Pipe * p1 = new Pipe(16 mm, 1 mm, 1.8);
+	Pipe * p1 = new Pipe(largeDiameter, 1 mm, 1.8);
 	// vyvod radiator hostovska
-	Pipe * p2 = new Pipe(16 mm, 1 mm, 0.95);
+	Pipe * p2 = new Pipe(largeDiameter, 1 mm, 0.95);
 	// vyvod radiator kupelna
-	Pipe * p3 = new Pipe(16 mm, 1 mm, 2.6 + 0.2 + 1.54 + 0.5 + 1.0);
+	Pipe * p3 = new Pipe(largeDiameter, 1 mm, 2.6 + 0.2 + 1.54 + 0.5 + 1.0);
 	// vyvod radiator spalna
-	Pipe * p4 = new Pipe(16 mm, 1 mm, 3.8 + 0.2 + 0.1);
+	Pipe * p4 = new Pipe(largeDiameter, 1 mm, 3.8 + 0.2 + 0.1);
 	// vyvod radiator kuchyna
-	Pipe * p5 = new Pipe(16 mm, 1 mm, 2.0 + 0.2 + 1.5);
+	Pipe * p5 = new Pipe(largeDiameter, 1 mm, 2.0 + 0.2 + 1.5);
 	// vyvod radiator obyvacka
 
 	systemInput->out(p0);
@@ -360,17 +367,17 @@ int main(int argc, char ** argv) {
 
 
 	// "spiatocka"
-	Pipe * p6 = new Pipe(16 mm, 1 mm, 1.5);
+	Pipe * p6 = new Pipe(largeDiameter, 1 mm, 1.5);
 	// vyvod radiator dielna
-	Pipe * p7 = new Pipe(16 mm, 1 mm, 1.8);
+	Pipe * p7 = new Pipe(largeDiameter, 1 mm, 1.8);
 	// vyvod radiator hostovska
-	Pipe * p8 = new Pipe(16 mm, 1 mm, 0.95);
+	Pipe * p8 = new Pipe(largeDiameter, 1 mm, 0.95);
 	// vyvod radiator kupelna
-	Pipe * p9 = new Pipe(16 mm, 1 mm, 2.6 + 0.2 + 1.54 + 0.5 + 1.0);
+	Pipe * p9 = new Pipe(largeDiameter, 1 mm, 2.6 + 0.2 + 1.54 + 0.5 + 1.0);
 	// vyvod radiator spalna
-	Pipe * p10 = new Pipe(16 mm, 1 mm, 3.8 + 0.2 + 0.1);
+	Pipe * p10 = new Pipe(largeDiameter, 1 mm, 3.8 + 0.2 + 0.1);
 	// vyvod radiator kuchyna
-	Pipe * p11 = new Pipe(16 mm, 1 mm, 2.0 + 0.2 + 1.5);
+	Pipe * p11 = new Pipe(largeDiameter, 1 mm, 2.0 + 0.2 + 1.5);
 	// vyvod radiator obyvacka
 
 	systemOutput->in(p6);
@@ -381,25 +388,25 @@ int main(int argc, char ** argv) {
 	p10->prepend(p11);
 
 	// radiator obyvacka juh
-	Radiator * rOR1 = genRadiator(p5, p11, 1000, 10 mm, 1 mm, 3.4 + 1.4 + 1.6, 3.4 + 1.4 + 2.1);
+	Radiator * rOR1 = genRadiator(p5, p11, "Obyvacka juh", 1000, smallDiameter, 1 mm, 3.4 + 1.4 + 1.6, 3.4 + 1.4 + 2.1);
 
 	// radiator obyvacka vychod
-	Radiator * rOR2 = genRadiator(p5, p11, 1000, 10 mm, 1 mm, 1.6, 2.1);
+	Radiator * rOR2 = genRadiator(p5, p11, "Obyvacka vychod", 1000, smallDiameter, 1 mm, 1.6, 2.1);
 
 	// radiator kuchyna
-	Radiator * rKuch = genRadiator(p4, p10, 601, 10 mm, 1 mm, 1.6, 2.1);
+	Radiator * rKuch = genRadiator(p4, p10, "Kuchyna", 601, smallDiameter, 1 mm, 1.6, 2.1);
 
 	// radiator spalna
-	Radiator * rSpal = genRadiator(p3, p9, 1520, 10 mm, 1 mm, 1.6, 2.1);
+	Radiator * rSpal = genRadiator(p3, p9, "Spalna", 1520, smallDiameter, 1 mm, 1.6, 2.1);
 
 	// radiator kupelna
-	Radiator * rKup = genRadiator(p2, p8, 364, 10 mm, 1 mm, 1.6, 2.1);
+	Radiator * rKup = genRadiator(p2, p8, "Kupelna", 364, smallDiameter, 1 mm, 1.6, 2.1);
 
 	// radiator hostovska
-	Radiator * rHost = genRadiator(p1, p7, 690, 10 mm, 1 mm, 6.0 + 1.6, 6.0 + 2.1);
+	Radiator * rHost = genRadiator(p1, p7, "Hostovska", 690, smallDiameter, 1 mm, 6.0 + 1.6, 6.0 + 2.1);
 
 	// radiator dielna
-	Radiator * rDieln = genRadiator(p0, p6, 922, 10 mm, 1 mm, 0.5, 1.0);
+	Radiator * rDieln = genRadiator(p0, p6, "Dielna", 922, smallDiameter, 1 mm, 0.5, 1.0);
 
 	forwardTemperature(55, systemInput);
 	reverseTemperature(45, systemOutput);

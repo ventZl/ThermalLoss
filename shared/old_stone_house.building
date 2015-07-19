@@ -159,17 +159,17 @@
 		{
 			"name" : "groundFloor",
 			"composition" : [
-				{ "material" : "linoleum", "width" : 0.04 },
-				{ "material" : "beton", "width" : 0.05 },
-				{ "material" : "skvarobeton@1800", "width" : 0.2 },
+				{ "material" : "linoleum", "width" : 0.004 },
+				{ "material" : "beton", "width" : 0.10 },
+				{ "material" : "skvara", "width" : 0.10 }
 			]
 		},
 		{
 			"name" : "ceilingFloor",
 			"composition" : [
-				{ "material" : "skvarobeton@1000", "width" : 0.03 },
+				{ "material" : "skvarobeton@1000", "width" : 0.1 },
 				{ "material" : "drevo@tvrde(K)", "width" : 0.05 },
-				{ "material" : "vzduch", "width" : 0.2 },
+				{ "material" : "vzduch", "width" : 0.25 },
 				{ "material" : "hlinik", "width" : 0.001 }
 			]
 		}

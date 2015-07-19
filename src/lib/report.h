@@ -82,6 +82,11 @@ public:
 	void pathProperty(unsigned key, std::string property, const std::string & value);
 	void pathProperty(unsigned key, std::string property, bool value);
 
+	void simProperty(std::string property, double value);
+	void simProperty(std::string property, int value);
+	void simProperty(std::string property, const std::string & value);
+	void simProperty(std::string property, bool value);
+
 	void save(std::string filename) const;
 
 protected:
@@ -98,6 +103,7 @@ protected:
 protected:
 	std::vector<ReportItem *> m_cells;
 	std::vector<ReportItem *> m_paths;
+	ReportItem * m_simProperties;
 };
 
 }

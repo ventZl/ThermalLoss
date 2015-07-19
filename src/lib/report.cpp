@@ -60,6 +60,23 @@ void Solver::Report::pathProperty(unsigned key, std::string property, bool value
 	getPath(key)->property(property, value);
 }
 
+void Solver::Report::simProperty(std::string property, double value) {
+	m_simProperties->property(property, value);
+}
+
+void Solver::Report::simProperty(std::string property, int value) {
+	m_simProperties->property(property, value);
+}
+
+void Solver::Report::simProperty(std::string property, const std::string & value) {
+	m_simProperties->property(property, value);
+}
+
+void Solver::Report::simProperty(std::string property, bool value) {
+	m_simProperties->property(property, value);
+}
+
+
 
 void Solver::Report::save(std::string filename) const {
 	FILE * f = fopen(filename.c_str(), "w");
